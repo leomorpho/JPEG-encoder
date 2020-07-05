@@ -1,5 +1,6 @@
-from src.ui import MainWindow
-from PyQt5.QtGui import QApplication
+import logging
+
+
 
 if __name__ == "__main__":
     app = QApplication([])
