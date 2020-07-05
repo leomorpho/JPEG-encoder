@@ -1,6 +1,6 @@
 import pytest
 import logging
-from q2 import downsample_time, downsample_amplitude
+from src import q2
 
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
