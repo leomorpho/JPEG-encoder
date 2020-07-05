@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
+from src.codecs.wav import WavFile
 import logging
 
 log = logging.getLogger()
@@ -13,13 +14,12 @@ class MainWindow(QMainWindow):
     def __init__(self):
         QMainWindow.__init__(self)
         self.audio_file_path = None
-        self.current_effect = None
 
         # Initialize all other params
         self.init_widget()
 
     def init_widget(self):
-        self.setWindowTitle("Project 2")
+        self.setWindowTitle("WAV/BMP Compression")
 
         # Menu
         self.menu = self.menuBar()
@@ -27,9 +27,9 @@ class MainWindow(QMainWindow):
         self.file_menu = self.menu.addMenu("File")
 
         # Open File QAction
-        open_action = QAction("Open WAV file", self)
+        open_action = QAction("Compress WAV file", self)
         open_action.setShortcut('Ctrl+O')
-        open_action.setStatusTip('Open WAV file')
+        open_action.setStatusTip('Compress WAV file')
         open_action.triggered.connect(self.openFileDialogueBox)
         self.file_menu.addAction(open_action)
 
@@ -58,10 +58,8 @@ class MainWindow(QMainWindow):
             # The selected file is stored in fileName
             self.audio_file_path = dialog.selectedFiles()[0]
             imageWidget = WaveformImage(self.audio_file_path)
-            imageInfo = WavInfo(imageWidget.getWavFile)
 
             hbox.addWidget(imageWidget)
-            hbox.addWidget(imageInfo)
 
             central_widget = QWidget()
             central_widget.setLayout(hbox)
@@ -75,7 +73,7 @@ class WaveformImage(QWidget):
         self.wavFile = WavFile(filename)
         self.samples: List[int] = self.wavFile.samples
         self.downsampled_samples = []
-        self.setMinimumSize(1000, 600)
+        self.setMinimumSize(1000, 300)
 
         self.create_matrix()
 
@@ -114,8 +112,6 @@ class WaveformImage(QWidget):
                     self.matrix[l].append(BLACK)
                 else:
                     self.matrix[l].append(WHITE)
-        temp = fade_in_and_out(self.matrix)
-        self.matrix = temp
 
     def paintEvent(self, event):
 
