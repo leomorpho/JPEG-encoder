@@ -1,6 +1,6 @@
 # Project 2
 
-
+* Refactor to have either snakecase or camelcase
 
 ## Q1
 

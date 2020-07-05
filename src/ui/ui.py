@@ -3,6 +3,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from src.codecs.wav import WavFile
 import logging
+from src.compression.compression import Compressor
 
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
@@ -53,24 +54,36 @@ class MainWindow(QMainWindow):
         dialog.setViewMode(QFileDialog.List)
         if dialog.exec_():
             # Display image with info pane
-            hbox = QHBoxLayout(self)
+            vbox = QVBoxLayout(self)
 
             # The selected file is stored in fileName
             self.audio_file_path = dialog.selectedFiles()[0]
-            imageWidget = WaveformImage(self.audio_file_path)
+            wav_file = WavFile(self.audio_file_path)
 
-            hbox.addWidget(imageWidget)
+            imageWidget = WaveformImage(wav_file)
+
+            cps = Compressor()
+            cps.compress(wav_file)
+            infoDict = {
+                    "huffman": cps.get_huffman(),
+                    "LZW": cps.get_LZW()
+                    }
+
+            infoWidget = InfoWidget(infoDict)
+
+            vbox.addWidget(imageWidget)
+            vbox.addWidget(infoWidget)
 
             central_widget = QWidget()
-            central_widget.setLayout(hbox)
+            central_widget.setLayout(vbox)
             self.setCentralWidget(central_widget)
 
 
 class WaveformImage(QWidget):
-    def __init__(self, filename, *args, **kwargs):
+    def __init__(self, wavFile, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.wavFile = WavFile(filename)
+        self.wavFile = wavFile
         self.samples: List[int] = self.wavFile.samples
         self.downsampled_samples = []
         self.setMinimumSize(1000, 300)
@@ -136,6 +149,26 @@ class WaveformImage(QWidget):
         pixmap = QPixmap(image)
         painter.drawPixmap(self.rect(), pixmap)
 
+class InfoWidget(QWidget):
+    def __init__(self, infoDict, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        layout = QHBoxLayout(self)
+
+        left_widget = QWidget()
+        layout_l = QVBoxLayout(self)
+        layout_l.addWidget(QLabel("Huffman compression ratio"))
+        layout_l.addWidget(QLabel("LZW compression ratio"))
+        left_widget.setLayout(layout_l)
+
+        right_widget = QWidget()
+        layout_r = QVBoxLayout(self)
+        layout_r.addWidget(QLabel(str(infoDict["huffman"])))
+        layout_r.addWidget(QLabel(str(infoDict["LZW"])))
+        right_widget.setLayout(layout_r)
+
+        layout.addWidget(left_widget)
+        layout.addWidget(right_widget)
+        self.setLayout(layout)
 
 def downsample_time(list_object, max_val):
     # Compress the number of items in the list by scale_factor
