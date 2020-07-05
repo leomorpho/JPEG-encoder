@@ -19,7 +19,7 @@ class MainWindow(QMainWindow):
         self.init_widget()
 
     def init_widget(self):
-        self.setWindowTitle("WAV Waveform Viewer")
+        self.setWindowTitle("Project 2")
 
         # Menu
         self.menu = self.menuBar()
@@ -29,7 +29,7 @@ class MainWindow(QMainWindow):
         # Open File QAction
         open_action = QAction("Open WAV file", self)
         open_action.setShortcut('Ctrl+O')
-        open_action.setStatusTip('Open WAV image')
+        open_action.setStatusTip('Open WAV file')
         open_action.triggered.connect(self.openFileDialogueBox)
         self.file_menu.addAction(open_action)
 
