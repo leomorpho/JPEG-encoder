@@ -1,8 +1,8 @@
-from src.ui.ui import MainWindow
+from src.ui.ui import MainWindowQ1
 from PyQt5.QtWidgets import QApplication
 
 if __name__ == "__main__":
     app = QApplication([])
-    window = MainWindow()
+    window = MainWindowQ1()
     window.show()
     app.exec_()

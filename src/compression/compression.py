@@ -1,3 +1,11 @@
+import logging
+from typing import *
+from src.codecs.wav import WavFile
+
+log = logging.getLogger()
+log.setLevel(logging.DEBUG)
+
+
 class Compressor:
     def compress(self, wav_file):
         pass

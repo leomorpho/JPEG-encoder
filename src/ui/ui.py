@@ -11,7 +11,7 @@ log.setLevel(logging.DEBUG)
 BLACK = 0
 WHITE = 255
 
-class MainWindow(QMainWindow):
+class MainWindowQ1(QMainWindow):
     def __init__(self):
         QMainWindow.__init__(self)
         self.audio_file_path = None

@@ -109,9 +109,6 @@ class WavFile():
             data.append(sample)
         return data
 
-    def onResize(self, event):
-        pass
-
     def __repr__(self):
         valDict = {
             "chunkID": self.chunkID,
