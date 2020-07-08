@@ -24,7 +24,17 @@ test_encode_huffman = [
     InputOutputCase(
         name="Nominal",
         input_val=[1, 1, 1, 1, 10],
-        expected_output=[1, 5]
+        expected_output="11110"
+    ),
+    InputOutputCase(
+        name="From notes",
+        input_val=["A", "A", "B", "B", "B", "B", "C", "C", "D", "E"],
+        expected_output="1111110000101011001101"
+    ),
+    InputOutputCase(
+        name="Nominal",
+        input_val=[1, 2, 1, 2, 10, 2, 1, 4, 3, 6, 7, 4, 34, 3, 3, 6, 6, 7],
+        expected_output="10111010111001001101010111110010001101011111110000100"
     )
 ]
 
@@ -33,48 +43,8 @@ def test_encode_huffman(case):
     log.info("Case: " + case.name)
     log.debug("Input: " + str(case.input_val))
 
-    result = HuffmanEncoder.encode(case.input_val)
+    he = HuffmanEncoder()
+    result = he.encode(case.input_val)
 
     log.debug("Result: " + str(result))
     assert(result == case.expected_output)
-
-#########################################
-#                                       #
-# Get leaves                            #
-#                                       #
-#########################################
-
-test_get_leaves_recursive = [
-    InputOutputCase(
-        name="Nominal",
-        input_val=[1, 1, 1, 1, 10],
-        expected_output=2
-    )
-]
-
-@pytest.mark.parametrize("case", test_get_leaves_recursive)
-def test_get_leaves_recursive(case):
-    log.info("Case: " + case.name)
-    log.debug("Input: " + str(case.input_val))
-
-    hf = HuffmanEncoder()
-    prob_distr = hf.create_prob_distribution(case.input_val)
-
-    # Create starting leaves from ordered probability distribution
-    # The keys of the dict are the sample values.
-    leaves = []
-    for key, val in prob_distr.items():
-        new_leaf = HuffmanNode()
-        new_leaf.sample_value = key
-        new_leaf.probability = val
-        leaves.append(new_leaf)
-
-    # Create Huffman tree
-    root_node = hf.create_tree(leaves)
-
-    # Get all leaves
-    leaves = hf.get_leaves(root_node)
-
-    log.debug("Result: " + str(leaves))
-    assert(len(leaves) == case.expected_output)
-

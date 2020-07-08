@@ -43,22 +43,8 @@ class HuffmanNode:
 
 
 class HuffmanEncoder:
-    # def __init__(self, data):
-    #     self.utils = Utils()
-
-    #     self._entropy_1 = self.utils.get_entropy(
-    #         prob_distr, entropy_2nd=False)
-
-    #     # Simple Huffman codeword
-    #     self._avg_codeword_len = self.avg_codeword_len(prob_distr)
-
-    #     self.tree = self.create_tree()
-
-    def get_repr(self):
-        return {
-            "entropy_1st": round(self._entropy, 4),
-            "avg_code_len_1_symbol": round(self._avg_codeword_len, 4),
-        }
+    def __init__(self):
+        self.leaves = []
 
     def encode_wav(self, wav):
         """Wrapper function for WAV files
@@ -66,10 +52,9 @@ class HuffmanEncoder:
         wav.samples = self.encode(wav.samples)
         return wav
 
-    @classmethod
-    def encode(cls, data):
+    def encode(self, data):
         # Create probability distribution for the WAV samples
-        prob_distr = cls.create_prob_distribution(data)
+        prob_distr = self.create_prob_distribution(data)
 
         # Create starting leaves from ordered probability distribution
         # The keys of the dict are the sample values.
@@ -84,21 +69,18 @@ class HuffmanEncoder:
         del(prob_distr)
 
         # Create Huffman tree
-        root_node = cls.create_tree(leaves)
+        root_node = self.create_tree(leaves)
 
         # Assign code to every node
-        root_node = cls.assign_codes(root_node)
-
-        # Get all leaves
-        leaves = cls.get_leaves(root_node)
-        print(leaves)
+        root_node = self.assign_codes(root_node)
 
         # Create dict of sample to code
-        # TODO
+        sample_to_code_dict = self.sample_to_code_dict(leaves)
+        print("$%$%$%$%$%$%$%###################$#$#$#$#$#$#")
+        print(sample_to_code_dict)
 
         # Encode samples to codes
-        # TODO
-        return 0
+        return self.encode_to_str(data, sample_to_code_dict)
 
     @classmethod
     def create_tree(cls, list_repr: List[HuffmanNode]) -> HuffmanNode:
@@ -151,26 +133,28 @@ class HuffmanEncoder:
             node.children[1].code = node_code + "1"
 
             # Set codes for right and left branches of node
-            node.children[0] = assign_code_recurse(node.children[0])
-            node.children[1] = assign_code_recurse(node.children[1])
+            node.children[0] = cls.assign_code_recurse(node.children[0])
+            node.children[1] = cls.assign_code_recurse(node.children[1])
 
-    @classmethod
-    def get_leaves(cls, root):
-        """Helper method to find all leaves of a binary tree"""
-        return cls.get_leaf_recurse(root, [])
+    @staticmethod
+    def sample_to_code_dict(leaves: List[HuffmanNode]):
+        """Create a dictionary of sample value to code. This is used to encode
+        a stringa of data.
+        """
+        newDict = {}
+        for leaf in leaves:
+            newDict[leaf.sample_value] = leaf.code
+        return newDict
 
-    @classmethod
-    def get_leaf_recurse(cls, node, leaves) -> List[HuffmanNode]:
-        """Recursive method to find a leaf"""
-        leaves_l = []
-        leaves_r = []
-        if node.children:
-            # Go down left and right branches
-            leaves_l = cls.get_leaf_recurse(node.children[0], leaves)
-            leaves_r = cls.get_leaf_recurse(node.children[1], leaves)
-            return leaves_l + leaves_r
+    @staticmethod
+    def encode_to_str(samples: List[int], sample_to_code: Dict[int, int]) -> str:
+        """Encode a list of samples using the Huffman dictionary
+        """
+        result = ""
+        for sample in samples:
+            result += sample_to_code[sample]
 
-        return [node]
+        return result
 
 
     @staticmethod
@@ -190,42 +174,3 @@ class HuffmanEncoder:
             prob_distribution[key] = val / len(samples)
 
         return prob_distribution
-
-
-class Utils:
-    @staticmethod
-    def str_to_list(sentence: str, word_len=2) -> List[Any]:
-        """Convert a even length string with minimum size of 2 to
-        a list of pair of characters
-        """
-        sentence_len = len(sentence)
-        pairs_list = []
-
-        count = 0
-        while count < sentence_len:
-            pair = sentence[count:count+word_len]
-            pairs_list.append(pair)
-            count += word_len
-
-        return pairs_list
-
-    @staticmethod
-    def get_entropy(prob_distribution: Dict, entropy_2nd):
-        """Calculate first or second order entropy
-        """
-        entropy: float = 0
-
-        # entropy = SUM(prob * log_2 (prob))
-        for prob in prob_distribution.values():
-            res = prob * math.log((1 / prob), 2)
-            entropy += res
-
-        if entropy_2nd:
-            return entropy / 2
-        return entropy
-
-    @classmethod
-    def get_str_entropy(self, sentence, entropy_2nd=False):
-        list_o = self.str_to_list(sentence)
-        prob_distr = self.create_prob_distribution(list_o)
-        return self.get_entropy(prob_distr, entropy_2nd=entropy_2nd)
