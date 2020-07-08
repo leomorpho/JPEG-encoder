@@ -1,9 +1,12 @@
 import math
 import logging
 from typing import *
+import os
 
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
+
+ENCODED_WAV_FILEPATH = "encoded_file.wav"
 
 
 class HuffmanNode:
@@ -44,13 +47,34 @@ class HuffmanNode:
 
 class HuffmanEncoder:
     def __init__(self):
-        self.leaves = []
+        pass
 
     def encode_wav(self, wav):
         """Wrapper function for WAV files
         """
-        wav.samples = self.encode(wav.samples)
-        return wav
+        self.unencoded_samples = wav.samples
+
+        self.unencoded_wav_filepath = wav.filepath
+        self.encoded_wav_filepath = ENCODED_WAV_FILEPATH
+
+        self.encoded_samples = self.encode(wav.samples)
+
+        # with open(self.encoded_wav_filepath, "a+") as f:
+        #     f.write(wav)
+
+    def compression_ratio(self):
+        # unencoded_size = os.path.getsize(self.unencoded_wav_filepath)
+        # encoded_size = os.path.getsize(self.encoded_wav_filepath)
+        # return round(unencoded_size / encoded_size, 4)
+
+        # Convert both lists to string. The unencoded string must be converted to binary.
+        unencoded_binary = [bin(x) for x in self.unencoded_samples]
+
+        len_unencoded = len("".join(unencoded_binary))
+        len_encoded = len("".join(self.encoded_samples))
+        print(len_unencoded)
+        print(len_encoded)
+        return round(len_unencoded / len_encoded, 4)
 
     def encode(self, data):
         # Create probability distribution for the WAV samples
@@ -76,38 +100,29 @@ class HuffmanEncoder:
 
         # Create dict of sample to code
         sample_to_code_dict = self.sample_to_code_dict(leaves)
-        print("$%$%$%$%$%$%$%###################$#$#$#$#$#$#")
-        print(sample_to_code_dict)
 
         # Encode samples to codes
-        return self.encode_to_str(data, sample_to_code_dict)
+        return self.encode_to_list(data, sample_to_code_dict)
 
     @classmethod
-    def create_tree(cls, list_repr: List[HuffmanNode]) -> HuffmanNode:
-        """Helper method to Create a Huffman tree from the given list and return the root node
+    def create_tree(cls, nodes: List[HuffmanNode]) -> HuffmanNode:
+        """Create a Huffman tree from the given list and return the root node
         """
-        return cls.huffman_recurse(list_repr)[0]
 
-    @classmethod
-    def huffman_recurse(cls, list_repr: List[HuffmanNode]) -> List[HuffmanNode]:
-        """Recursive function to create a Huffman tree"""
-        if len(list_repr) == 1:
-            return list_repr
-        list_repr.sort(key=lambda x: x.probability)
+        while len(nodes) > 1:
+            nodes.sort(key=lambda x: x.probability)
+            child1 = nodes[0]
+            child2 = nodes[1]
+            new_node = HuffmanNode()
+            new_node.probability = child1.probability + child2.probability
+            child1.parent = new_node
+            child2.parent = new_node
+            new_node.children = [child1, child2]
 
-        child1 = list_repr[0]
-        child2 = list_repr[1]
-        new_node = HuffmanNode()
-        new_node.probability = child1.probability + child2.probability
-        child1.parent = new_node
-        child2.parent = new_node
-        new_node.children = [child1, child2]
+            nodes = nodes[2:]
+            nodes.insert(0, new_node)
 
-        list_repr = list_repr[2:]
-        list_repr.insert(0, new_node)
-
-        list_repr = cls.huffman_recurse(list_repr)
-        return list_repr
+        return nodes[0]
 
     @classmethod
     def assign_codes(cls, root: HuffmanNode) -> HuffmanNode:
@@ -147,15 +162,14 @@ class HuffmanEncoder:
         return newDict
 
     @staticmethod
-    def encode_to_str(samples: List[int], sample_to_code: Dict[int, int]) -> str:
+    def encode_to_list(samples: List[int], sample_to_code: Dict[int, int]) -> List[int]:
         """Encode a list of samples using the Huffman dictionary
         """
-        result = ""
+        result = []
         for sample in samples:
-            result += sample_to_code[sample]
+            result.append(sample_to_code[sample])
 
         return result
-
 
     @staticmethod
     def create_prob_distribution(samples: List[Any]) -> Dict[int, float]:

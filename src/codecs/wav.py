@@ -4,7 +4,7 @@ LITTLE_ENDIAN = '< '
 
 
 class WavFile():
-    def __init__(self, filename):
+    def __init__(self, filepath):
         """
         :param chunkID: Contains the letters "RIFF" in ASCII form: (0x52494646 big-endian form).
         :type  chunkID: 4 byte str
@@ -61,12 +61,14 @@ class WavFile():
         self.subchunk2Size = 0
         self.maxValInSamples = 0
 
-        self.open_file(filename)
+        self.filepath = filepath
 
-    def open_file(self, filename: str):
+        self.open_file(filepath)
+
+    def open_file(self, filepath: str):
         """Read and construct WavFile object
         """
-        with open(filename, "rb") as f:
+        with open(filepath, "rb") as f:
             self.chunkID = f.read(4)
             self.chunkSize = self.unpack('I', f.read(4))
             self.format = f.read(4)
@@ -136,6 +138,10 @@ class WavFile():
     @property
     def samples(self):
         return self.data
+
+    @samples.setter
+    def samples(self, value):
+        self.data = value
 
     @property
     def getBitsPerSample(self):

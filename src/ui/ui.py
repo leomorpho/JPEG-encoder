@@ -65,8 +65,8 @@ class MainWindowQ1(QMainWindow):
             cps = Compressor()
             cps.compress(wav_file)
             infoDict = {
-                    "huffman": cps.get_huffman(),
-                    "LZW": cps.get_LZW()
+                    "huffman": cps.get_huffman_compression_ratio(),
+                    "LZW": cps.get_LZW_compression_ratio()
                     }
 
             infoWidget = InfoWidget(infoDict)

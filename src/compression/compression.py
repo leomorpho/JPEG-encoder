@@ -11,16 +11,19 @@ class Compressor:
     def __init__(self):
         self.Huffman_compressed: WavFile = None
         self.LZW_compressed: WavFile = None
+
     def compress(self, wav_file: WavFile):
         """Compress WAV using all available compressors"""
-        self.Huffman_compressed = HuffmanEncoder.encode_wav(wav_file)
+        self.huffman_encoder= HuffmanEncoder()
+        self.huffman_encoder.encode_wav(wav_file)
+
         # TODO: LZW compression
         # self.LZW_compressed = LZWEncoder.encode(wav_file)
 
-    def get_huffman(self):
+    def get_huffman_compression_ratio(self):
         """Compress WAV using Huffman compression"""
-        return 3.2
+        return self.huffman_encoder.compression_ratio()
 
-    def get_LZW(self):
+    def get_LZW_compression_ratio(self):
         """Compress WAV using LZW compression"""
         return 2.3
