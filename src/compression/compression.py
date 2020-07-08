@@ -2,6 +2,7 @@ import logging
 from typing import *
 from src.codecs.wav import WavFile
 from src.compression.huffman import HuffmanEncoder
+from src.compression.lzw import LZWEncoder
 
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
@@ -14,11 +15,11 @@ class Compressor:
 
     def compress(self, wav_file: WavFile):
         """Compress WAV using all available compressors"""
-        self.huffman_encoder= HuffmanEncoder()
+        self.huffman_encoder = HuffmanEncoder()
         self.huffman_encoder.encode_wav(wav_file)
 
-        # TODO: LZW compression
-        # self.LZW_compressed = LZWEncoder.encode(wav_file)
+        self.lzw_encoder = LZWEncoder()
+        self.lzw_encoder.encode_wav(wav_file)
 
     def get_huffman_compression_ratio(self):
         """Compress WAV using Huffman compression"""
@@ -26,4 +27,4 @@ class Compressor:
 
     def get_LZW_compression_ratio(self):
         """Compress WAV using LZW compression"""
-        return 2.3
+        return self.lzw_encoder.compression_ratio()

@@ -54,26 +54,17 @@ class HuffmanEncoder:
         """
         self.unencoded_samples = wav.samples
 
-        self.unencoded_wav_filepath = wav.filepath
-        self.encoded_wav_filepath = ENCODED_WAV_FILEPATH
-
         self.encoded_samples = self.encode(wav.samples)
 
         # with open(self.encoded_wav_filepath, "a+") as f:
         #     f.write(wav)
 
     def compression_ratio(self):
-        # unencoded_size = os.path.getsize(self.unencoded_wav_filepath)
-        # encoded_size = os.path.getsize(self.encoded_wav_filepath)
-        # return round(unencoded_size / encoded_size, 4)
-
         # Convert both lists to string. The unencoded string must be converted to binary.
         unencoded_binary = [bin(x) for x in self.unencoded_samples]
 
         len_unencoded = len("".join(unencoded_binary))
         len_encoded = len("".join(self.encoded_samples))
-        print(len_unencoded)
-        print(len_encoded)
         return round(len_unencoded / len_encoded, 4)
 
     def encode(self, data):
