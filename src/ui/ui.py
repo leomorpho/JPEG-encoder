@@ -65,8 +65,10 @@ class MainWindowQ1(QMainWindow):
             cps = Compressor()
             cps.compress(wav_file)
             infoDict = {
-                    "huffman": cps.get_huffman_compression_ratio(),
-                    "LZW": cps.get_LZW_compression_ratio()
+                    "Huffman": cps.get_huffman_compression_ratio(),
+                    "LZW": cps.get_LZW_compression_ratio(),
+                    "Huffman-LZW": cps.get_huffman_based_LZW_compression_rate(),
+                    "LZW-Huffman": cps.get_LZW_based_huffman_compression_rate()
                     }
 
             infoWidget = InfoWidget(infoDict)
@@ -158,12 +160,16 @@ class InfoWidget(QWidget):
         layout_l = QVBoxLayout(self)
         layout_l.addWidget(QLabel("Huffman compression ratio"))
         layout_l.addWidget(QLabel("LZW compression ratio"))
+        layout_l.addWidget(QLabel("Huffman-based LZW compression ratio"))
+        layout_l.addWidget(QLabel("LZW-based Huffman compression ratio"))
         left_widget.setLayout(layout_l)
 
         right_widget = QWidget()
         layout_r = QVBoxLayout(self)
-        layout_r.addWidget(QLabel(str(infoDict["huffman"])))
+        layout_r.addWidget(QLabel(str(infoDict["Huffman"])))
         layout_r.addWidget(QLabel(str(infoDict["LZW"])))
+        layout_r.addWidget(QLabel(str(infoDict["Huffman-LZW"])))
+        layout_r.addWidget(QLabel(str(infoDict["LZW-Huffman"])))
         right_widget.setLayout(layout_r)
 
         layout.addWidget(left_widget)

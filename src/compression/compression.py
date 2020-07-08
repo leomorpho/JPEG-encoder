@@ -28,3 +28,11 @@ class Compressor:
     def get_LZW_compression_ratio(self):
         """Compress WAV using LZW compression"""
         return self.lzw_encoder.compression_ratio()
+
+    def get_huffman_based_LZW_compression_rate(self):
+        """Compress WAV using Huffman first and then LZW compression"""
+        return 1
+
+    def get_LZW_based_huffman_compression_rate(self):
+        """Compress WAV using LZW first and then Huffman compression"""
+        return 1
