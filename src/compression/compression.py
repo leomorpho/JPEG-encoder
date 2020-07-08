@@ -15,11 +15,22 @@ class Compressor:
 
     def compress(self, wav_file: WavFile):
         """Compress WAV using all available compressors"""
-        self.huffman_encoder = HuffmanEncoder()
-        self.huffman_encoder.encode_wav(wav_file)
 
-        self.lzw_encoder = LZWEncoder()
-        self.lzw_encoder.encode_wav(wav_file)
+        # Huffman encoding
+        self.huffman_encoder = HuffmanEncoder(wav_file)
+        self.huffman_encoder.encode_wav()
+
+        # LZW encoding
+        self.lzw_encoder = LZWEncoder(wav_file)
+        self.lzw_encoder.encode_wav()
+
+        # LZW-based Huffman encoding
+        LZW_encoded = self.lzw_encoder.encoded_samples
+        self.LZW_based_huffman_encoded = self.huffman_encoder.encode(LZW_encoded)
+
+        # Huffman-based LZW encoding
+        huffman_encoded = self.huffman_encoder.encoded_samples
+        self.Huffman_based_LZW_encoded = self.lzw_encoder.encode(huffman_encoded)
 
     def get_huffman_compression_ratio(self):
         """Compress WAV using Huffman compression"""
@@ -31,8 +42,8 @@ class Compressor:
 
     def get_huffman_based_LZW_compression_rate(self):
         """Compress WAV using Huffman first and then LZW compression"""
-        return 1
+        return self.huffman_encoder.compression_ratio(self.Huffman_based_LZW_encoded)
 
     def get_LZW_based_huffman_compression_rate(self):
         """Compress WAV using LZW first and then Huffman compression"""
-        return 1
+        return self.lzw_encoder.compression_ratio(self.LZW_based_huffman_encoded)

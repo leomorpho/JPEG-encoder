@@ -1,13 +1,13 @@
 class LZWEncoder:
-    def __init__(self):
-        self.unencoded_samples = []
-        self.encoded_samples = []
+    def __init__(self, wav_file):
+        self.wav_file = wav_file
+        self._unencoded_samples = wav_file.samples
+        self._encoded_samples = []
 
-    def encode_wav(self, wav):
+    def encode_wav(self):
         """Wrapper function for WAV files
         """
-        self.unencoded_samples = wav.samples
-        self.encoded_samples = self.encode(wav.samples)
+        self._encoded_samples = self.encode(self.wav_file.samples)
 
 
     def encode(self, data):
@@ -49,11 +49,17 @@ class LZWEncoder:
         return encoded_sentence
 
 
-    def compression_ratio(self):
+    def compression_ratio(self, encoded_samples=None):
         # Convert both lists to string. The unencoded string must be converted to binary.
-        unencoded_binary = [bin(x) for x in self.unencoded_samples]
+        if not encoded_samples:
+            encoded_samples = self._encoded_samples
+
+        unencoded_binary = [bin(x) for x in self._unencoded_samples]
 
         len_unencoded = len("".join(unencoded_binary))
-        print(type(self.encoded_samples))
         len_encoded = len("".join(self.encoded_samples))
         return round(len_unencoded / len_encoded, 4)
+
+    @property
+    def encoded_samples(self):
+        return self._encoded_samples
