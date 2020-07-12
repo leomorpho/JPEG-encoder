@@ -27,10 +27,12 @@ class Compressor:
         # LZW-based Huffman encoding
         LZW_encoded = self.lzw_encoder.encoded_samples
         self.LZW_based_huffman_encoded = self.huffman_encoder.encode(LZW_encoded)
+        assert(self.LZW_based_huffman_encoded!= LZW_encoded)
 
         # Huffman-based LZW encoding
         huffman_encoded = self.huffman_encoder.encoded_samples
         self.Huffman_based_LZW_encoded = self.lzw_encoder.encode(huffman_encoded)
+        assert(self.Huffman_based_LZW_encoded != huffman_encoded)
 
     def get_huffman_compression_ratio(self):
         """Compress WAV using Huffman compression"""

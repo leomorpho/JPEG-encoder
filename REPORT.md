@@ -12,16 +12,19 @@ While the compression ratios of LZW are better, it does not show the impact of h
 
 _Create a map of my implementation (classes, modules). Describe the interface of all objects._
 
-| Filename | Huffman | LZW  | LZW-based Huffman | Huffman-based LZW |
-| -------- | ------- | ---- | ----------------- | ----------------- |
-|          |         |      |                   |                   |
-|          |         |      |                   |                   |
+| Filename  | Huffman | LZW    | LZW-based Huffman | Huffman-based LZW |
+| --------- | ------- | ------ | ----------------- | ----------------- |
+| Car horn  | 1.5638  | 5.1213 |                   |                   |
+| Explosion | 1.1753  | 3.7733 |                   |                   |
+| Fire      | 1.1797  | 4.0152 |                   |                   |
+| Leopard   | 1.3856  | 4.5684 |                   |                   |
+| Wav8bit   | 1.3462  | 4.6984 |                   |                   |
 
 
 
 ## Q2
 
-
+Apply GMM on image before lossy compression.
 
 ## References
 
