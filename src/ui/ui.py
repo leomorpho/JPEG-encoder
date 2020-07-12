@@ -3,7 +3,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from src.codecs.wav import WavFile
 import logging
-from src.compression.compression import Compressor
+from src.compression.compressor import SoundCompressor
 
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
@@ -62,7 +62,7 @@ class MainWindowQ1(QMainWindow):
 
             imageWidget = WaveformImage(wav_file)
 
-            cps = Compressor()
+            cps = SoundCompressor()
             cps.compress(wav_file)
             infoDict = {
                     "Huffman": cps.get_huffman_compression_ratio(),
