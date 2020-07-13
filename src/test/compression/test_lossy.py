@@ -21,7 +21,7 @@ class InputOutputCase():
         self.expected_output = expected_output
 
 
-test_block_splitting = [
+test_block_split = [
     InputOutputCase(
         name="Nominal",
         input_val=[
@@ -94,12 +94,58 @@ test_block_splitting = [
 ]
 
 
-@pytest.mark.parametrize("case", test_block_splitting)
+@pytest.mark.parametrize("case", test_block_split)
 def test_block_splitting(case):
     log.info("Case: " + case.name)
     log.debug("Input: " + str(case.input_val))
 
     result = block_split_layer(case.input_val)
+
+    log.debug("Result: " + str(result))
+    assert(result == case.expected_output)
+
+test_block_join = [
+    InputOutputCase(
+        name="Nominal",
+        input_val =[
+            # The 8x8 square of values become a "single value" at (0, 0)
+            [
+                [
+                    [1, 1, 1, 1, 1, 1, 1, 1],
+                    [1, 1, 1, 1, 1, 1, 1, 1],
+                    [1, 1, 1, 1, 1, 1, 1, 1],
+                    [1, 1, 1, 1, 1, 1, 1, 1],
+                    [1, 1, 1, 1, 1, 1, 1, 1],
+                    [1, 1, 1, 1, 1, 1, 1, 1],
+                    [1, 1, 1, 1, 1, 1, 1, 1],
+                    [1, 1, 1, 1, 1, 1, 1, 1]
+                ]
+            ]
+        ],
+        expected_output =[
+            [1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1],
+        ]
+    ),
+]
+
+@pytest.mark.parametrize("case", test_block_join)
+def test_block_joining(case):
+    """This test is the opposite of test_block_splitting and
+    uses the same test data, except reversed.
+    """
+    log.info("Case: " + case.name)
+
+
+    log.debug("Input: " + str(case.input_val))
+
+    result = block_join_layer(case.input_val)
 
     log.debug("Result: " + str(result))
     assert(result == case.expected_output)

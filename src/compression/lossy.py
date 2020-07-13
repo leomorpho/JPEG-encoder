@@ -11,8 +11,9 @@ def downsample(image: List[List[int]]):
 def JPEG(image):
     layers = separate_image_layers(image)
 
+    block_split_layers = []
     for layer in layers:
-        blocked_layer = block_split_layer(layer)
+        block_split_layers.append(block_split_layer(layer))
 
 
 def separate_image_layers(image: List[List[int]]) -> List[List[List[int]]]:
@@ -110,6 +111,47 @@ def block_split_layer(layer: List[List[int]]):
                 break
 
     return blocked_layer
+
+
+def block_join_layer(blocked_layer: List[List[int]]):
+    """Join 8x8 blocks into a layer. This is the inverse operation
+    of block_split_layer
+    """
+    # Structure of blocked_layer:
+    # [[block, block],
+    #  [block, block]]
+
+    # (1) Merge all blocks horizontally
+    # Enumerate over ALL blocks
+    horizontally_merged_blocks = []
+    for blocks_row in blocked_layer:
+        # Join blocks which are in the same row.
+        # It should be 8 heigh by (8 x number of blocks) long.
+        joined_block_rows = [[] for i in range(8)]
+        for block in blocks_row:
+
+            # Enumerate over x, y of a block
+            for block_row_index, block_row in enumerate(block):
+                joined_block_rows[block_row_index].extend(block_row)
+
+        horizontally_merged_blocks.append(joined_block_rows)
+
+    # (2) Merge all block rows vertically
+    # Structure of blocked_layer:
+    # [
+    #   [
+    #     [row], [row]
+    #   ],
+    #   [
+    #     [row], [row]
+    #   ],
+    # ]
+    layer = []
+    for row_array in horizontally_merged_blocks:
+        for row in row_array:
+            layer.append(row)
+
+    return layer
 
 
 # Call DCT on every block
