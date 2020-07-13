@@ -1,6 +1,6 @@
 import pytest
 import logging
-from src.compression.huffman import HuffmanEncoder, HuffmanNode
+from src.compression.lossless import HuffmanEncoder, HuffmanNode
 
 
 log = logging.getLogger()
@@ -24,17 +24,19 @@ test_encode_huffman = [
     InputOutputCase(
         name="Nominal",
         input_val=[1, 1, 1, 1, 10],
-        expected_output="11110"
+        expected_output=['1', '1', '1', '1', '0']
     ),
     InputOutputCase(
         name="From notes",
         input_val=["A", "A", "B", "B", "B", "B", "C", "C", "D", "E"],
-        expected_output="1111110000101011001101"
+        expected_output=['111', '111', '0', '0', '0', '0', '10', '10', '1100', '1101']
     ),
     InputOutputCase(
         name="Nominal",
         input_val=[1, 2, 1, 2, 10, 2, 1, 4, 3, 6, 7, 4, 34, 3, 3, 6, 6, 7],
-        expected_output="10111010111001001101010111110010001101011111110000100"
+        expected_output=['101', '110', '101', '110', '0100', '110', '101',
+            '011', '111', '00', '100', '011', '0101', '111', '111', '00', '00', '100']
+
     )
 ]
 

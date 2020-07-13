@@ -2,7 +2,7 @@ import logging
 from typing import *
 from src.codecs.wav import WavFile
 from src.compression.lossless import HuffmanEncoder
-from src.compression.lossless import LZWEncoder
+from src.compression.lzw import LZWEncoder
 
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
@@ -51,7 +51,6 @@ class SoundCompressor:
         return self.lzw_encoder.compression_ratio(self.LZW_based_huffman_encoded)
 
 class ImageCompressor:
-    """JPEG-like compressor"""
     def __init__(self):
         pass
 

@@ -46,10 +46,11 @@ class HuffmanNode:
 
 
 class HuffmanEncoder:
-    def __init__(self, wav_file):
-        self.wav_file = wav_file
-        self._unencoded_samples = wav_file.samples
-        self._encoded_samples = []
+    def __init__(self, wav_file=None):
+        if wav_file:
+            self.wav_file = wav_file
+            self._unencoded_samples = wav_file.samples
+            self._encoded_samples = []
 
     @property
     def encoded_samples(self):
