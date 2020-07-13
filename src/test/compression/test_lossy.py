@@ -7,7 +7,7 @@ log.setLevel(logging.DEBUG)
 
 #########################################
 #                                       #
-# Block splitting                       #
+# Block splitting & joining             #
 #                                       #
 #########################################
 
@@ -64,7 +64,6 @@ test_block_split = [
             [1, 1, 1, 1, 1, 1, 1, 1],
         ],
         expected_output=[
-            # The 8x8 square of values become a "single value" at (0, 0)
             [
                 [
                     [1, 1, 1, 1, 1, 1, 1, 1],
@@ -104,11 +103,11 @@ def test_block_splitting(case):
     log.debug("Result: " + str(result))
     assert(result == case.expected_output)
 
+
 test_block_join = [
     InputOutputCase(
         name="Nominal",
-        input_val =[
-            # The 8x8 square of values become a "single value" at (0, 0)
+        input_val=[
             [
                 [
                     [1, 1, 1, 1, 1, 1, 1, 1],
@@ -122,7 +121,7 @@ test_block_join = [
                 ]
             ]
         ],
-        expected_output =[
+        expected_output=[
             [1, 1, 1, 1, 1, 1, 1, 1],
             [1, 1, 1, 1, 1, 1, 1, 1],
             [1, 1, 1, 1, 1, 1, 1, 1],
@@ -135,17 +134,86 @@ test_block_join = [
     ),
 ]
 
+
 @pytest.mark.parametrize("case", test_block_join)
 def test_block_joining(case):
     """This test is the opposite of test_block_splitting and
     uses the same test data, except reversed.
     """
     log.info("Case: " + case.name)
-
-
     log.debug("Input: " + str(case.input_val))
 
     result = block_join_layer(case.input_val)
+
+    log.debug("Result: " + str(result))
+    assert(result == case.expected_output)
+
+#########################################
+#                                       #
+# YCbCr splitting & joining             #
+#                                       #
+#########################################
+
+
+test_YCbCr_split = [
+    InputOutputCase(
+        name="Nominal",
+        input_val=[
+            [[1, 1, 1], [1, 1, 1]],
+            [[1, 1, 1], [1, 1, 1]]
+        ],
+        expected_output=[
+            [
+                [1, 1],
+                [1, 1]
+            ],
+            [
+                [1, 1],
+                [1, 1]
+            ],
+            [
+                [1, 1],
+                [1, 1]
+            ]
+        ]
+    ),
+    InputOutputCase(
+        name="3x4 iamges",
+        input_val=[
+            [[1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1]],
+            [[1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1]],
+            [[1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1]],
+        ],
+        expected_output=[
+            [
+                [1, 1, 1, 1],
+                [1, 1, 1, 1],
+                [1, 1, 1, 1],
+            ],
+            [
+                [1, 1, 1, 1],
+                [1, 1, 1, 1],
+                [1, 1, 1, 1],
+            ],
+            [
+                [1, 1, 1, 1],
+                [1, 1, 1, 1],
+                [1, 1, 1, 1],
+            ]
+        ]
+    ),
+]
+
+
+@pytest.mark.parametrize("case", test_YCbCr_split)
+def test_YCbCr_splitting(case):
+    """This test is the opposite of test_block_splitting and
+    uses the same test data, except reversed.
+    """
+    log.info("Case: " + case.name)
+    log.debug("Input: " + str(case.input_val))
+
+    result = separate_image_layers(case.input_val)
 
     log.debug("Result: " + str(result))
     assert(result == case.expected_output)
