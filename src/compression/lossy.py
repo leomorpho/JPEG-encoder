@@ -73,7 +73,7 @@ def join_image_layers(layers: List[List[List[int]]]) -> List[List[List[int]]]:
     """
     # Create image matrix with the same number of rows as there are in a layer.
     # For each row, add a list for every value in the layer's row. This is for (Y,Cb, Cr).
-    image = [[[] for j in len(layers[0][0])] for i in len(layers[0])]
+    image = [[[] for j in range(len(layers[0][0]))] for i in range(len(layers[0]))]
 
     for layer in layers:
         for row_index, row in enumerate(layer):
