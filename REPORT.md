@@ -24,7 +24,16 @@ _Create a map of my implementation (classes, modules). Describe the interface of
 
 ## Q2
 
-TODO: show images if possible for every step
+The following steps were implemented:
+
+* Separate RGB into YCbCr
+  * Split each layer into 8x8 blocks
+  * For every block:
+    * DCT
+    * Quantize
+    * Zigzag entropy coding
+
+The opposite was implemented for decoding. Encoding and decoding were implemented at the same time. This made development easier as my `pytests` were just the opposite of one another. It was surprisingly challenging and fun to perform each step. The DCT was the hardest part and I still do not completely understand the mathematics. I do understand the principles at work, which I reckon is the most important.
 
 ### Gaussian Mixture Model
 
@@ -37,6 +46,8 @@ The conversion from RGB to YCbCr used values from [this wikipedia reference page
 ### 2D Discrete Cosine Transform
 
 ### Quantization
+
+The two chroma layers are quantized more aggressively than the luma layer. The 50% tables were taken from the textbook. The 10% and 90% tables were taken from Wikipedia.
 
 ### Huffman encoding
 

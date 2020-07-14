@@ -6,6 +6,7 @@ log.setLevel(logging.DEBUG)
 
 # TODO: implement JPEG
 # TODO: implement GMM
+OUTPUT_FILE = "output.img"
 
 
 def downsample(image: List[List[List[int]]]):
@@ -13,31 +14,40 @@ def downsample(image: List[List[List[int]]]):
 
 
 def JPEG(image: List[List[List[int]]]) -> List[List[List[int]]]:
-    """Encode in JPEG-like format and return the decoded encoded image
+    """Encode in JPEG-like format and return the decoded image
     """
     # Separate into Y, Cb, Cr layers
     layers: List[List[List[int]]] = separate_image_layers(image)
 
-    # Split into 8x8 blocks
-    block_split_layers = []
+    layers_joined_blocks = []
+
     for layer in layers:
-        block_split_layers.append(block_split_layer(layer))
+        blocked_layer = block_split_layer(layer)
 
-        # Call DCT on every block
-        # Quantize every block
-        # Zigzag entropy code
+        for row in blocked_layer:
+            for block in row:
+                pass
+                # Call DCT on every block
+                # Quantize every block
+                # Zigzag entropy code
 
-        # Save file
+    # Save file
+    with open(OUTPUT_FILE, "w+") as fp:
+        fp.write()
 
-        # De-encode Huffman
-        # Dequantize every block
-        # Call DCT inverse on every block
+    # Read file
+    with open(OUTPUT_FILE, "r") as fp:
+        fp.read()
 
-        # Join 8x8 blocks
-        block_join_layer()
+    # De-encode Huffman
+    # Dequantize every block
+    # Call DCT inverse on every block
+
+    # Join 8x8 blocks
+    layers_joined_blocks.append(block_join_layer(layer))
 
     # Join Y, Cb, Cr layers
-    image: List[List[List[int]]] = join_image_layers(layers)
+    image: List[List[List[int]]] = join_image_layers(layers_joined_blocks)
 
     return image
 
@@ -73,7 +83,8 @@ def join_image_layers(layers: List[List[List[int]]]) -> List[List[List[int]]]:
     """
     # Create image matrix with the same number of rows as there are in a layer.
     # For each row, add a list for every value in the layer's row. This is for (Y,Cb, Cr).
-    image = [[[] for j in range(len(layers[0][0]))] for i in range(len(layers[0]))]
+    image = [[[] for j in range(len(layers[0][0]))]
+             for i in range(len(layers[0]))]
 
     for layer in layers:
         for row_index, row in enumerate(layer):

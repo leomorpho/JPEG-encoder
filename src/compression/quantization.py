@@ -1,5 +1,7 @@
+from typing import List
+
 # Find tables at p.284 of Professor's book
-luminance = [[]]
+# TODO: special quantization for chroma not implemented yet. Remove if not going to.
 chrominance = [[]]
 
 Q10 = [[80, 60, 50, 80, 120, 200, 255, 255],
@@ -28,3 +30,40 @@ Q90 = [[3, 2, 2, 3, 5, 8, 10, 12],
        [5, 7, 11, 13, 16, 12, 23, 18],
        [10, 13, 16, 17, 21, 24, 24, 21],
        [14, 18, 19, 20, 22, 20, 20, 20]]
+
+
+
+def quantize(block: List[List[int]], quantization_matrix=Q50, chroma=False):
+    """
+    Quantize a block.
+
+    :param block: an 8x8 block of integer values
+    :param quantization_matrix: the quantization matrix to use
+    :param chroma: whether to use chroma quantization table or not
+    """
+    # Divide every value in the block by the corresponding value
+    # in the quantization matrix (aka, same x, y indices)
+    for x in range(8):
+        for y in range(8):
+            block[y][x] = int(block[y][x] / quantization_matrix[y][x])
+
+    return block
+
+def dequantize(block: List[List[int]], quantization_matrix=Q50, chroma=False):
+    """
+    Dequantize a block.
+
+    :param block: an 8x8 block of integer values
+    :param quantization_matrix: the quantization matrix to use
+    :param chroma: whether to use chroma quantization table or not
+    """
+    # Multiply every value in the block by the corresponding value
+    # in the quantization matrix (aka, same x, y indices)
+    for x in range(8):
+        for y in range(8):
+            val = int(block[y][x] * quantization_matrix[y][x])
+            if val > 255:
+                val = 255
+            block[y][x] = val
+
+    return block
