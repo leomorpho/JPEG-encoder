@@ -20,7 +20,7 @@ def dct(block: List[List[int]], inverse=False) -> List[List[int]]:
     for i in range(len(block)):
         col_vector = []
         # Create column vector
-        for j in range(len(block))      # TODO: is access by index faster than iteration?
+        for j in range(len(block)):      # TODO: is access by index faster than iteration?
             col_vector.append(block[j][i])
 
         if inverse:
@@ -29,7 +29,7 @@ def dct(block: List[List[int]], inverse=False) -> List[List[int]]:
             col_vector = transform(col_vector)
 
         # Set results to block
-        for j in range(len(block))      # TODO: is access by index faster than iteration?
+        for j in range(len(block)):      # TODO: is access by index faster than iteration?
             block[j][i] = col_vector[j]
 
     return block
