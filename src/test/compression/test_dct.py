@@ -42,7 +42,7 @@ def test_dct(case):
     log.info("Case: " + case.name)
     log.debug("Input: " + str(case.input_val))
 
-    block= dct(case.input_val)
+    block = dct(case.input_val)
 
     log.debug("Result: " + str(block))
     for i in range(8):
@@ -54,6 +54,7 @@ def test_dct(case):
 # DCT III (backward)                    #
 #                                       #
 #########################################
+
 
 test_dct_inverse = [
     InputOutputCase(
