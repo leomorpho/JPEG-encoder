@@ -8,12 +8,35 @@ log.setLevel(logging.DEBUG)
 
 
 class InputOutputCase():
-    """Represents a test case with input_val and expected expected_output"""
+    """Represents a test case with block and expected vector"""
 
-    def __init__(self, name, input_val, expected_output):
+    def __init__(self, name, block, vector):
         self.name = name
-        self.input_val = input_val
-        self.expected_output = expected_output
+        self.block = block
+        self.vector = vector
+
+
+test_zigzag_cases = [
+    InputOutputCase(
+        name="Nominal",
+        block=[
+            [16, 11],
+            [12, 12],
+        ],
+        vector=[16, 11, 12, 12]
+    ),
+    InputOutputCase(
+        name="Nominal",
+        block=[
+            [16, 11, 10, 16],
+            [12, 12, 14, 19],
+            [14, 13, 16, 24],
+            [14, 17, 22, 29]
+        ],
+        vector=[16, 11, 12, 14, 12, 10,
+                         16, 14, 13, 14, 17, 16, 19, 24, 22, 29]
+    )
+]
 
 #########################################
 #                                       #
@@ -21,40 +44,30 @@ class InputOutputCase():
 #                                       #
 #########################################
 
-test_zigzag = [
-    InputOutputCase(
-        name="Nominal",
-        input_val=[
-            [16, 11],
-            [12, 12],
-        ],
-        expected_output=[16, 11, 12, 12]
-    ),
-    InputOutputCase(
-        name="Nominal",
-        input_val=[
-            [16, 11, 10, 16],
-            [12, 12, 14, 19],
-            [14, 13, 16, 24],
-            [14, 17, 22, 29]
-        ],
-        expected_output=[16, 11, 12, 14, 12, 10, 16, 14, 13, 14, 17, 16, 19, 24, 22, 29]
-    )
-]
 
-
-@pytest.mark.parametrize("case", test_zigzag)
+@pytest.mark.parametrize("case", test_zigzag_cases)
 def test_zigzag(case):
     log.info("Case: " + case.name)
-    log.debug("Input: " + str(case.input_val))
+    log.debug("Input: " + str(case.block))
 
-    result = zigzag(case.input_val)
+    result = zigzag(case.block)
 
     log.debug("Result: " + str(result))
-    assert(result == case.expected_output)
+    assert(result == case.vector)
 
 #########################################
 #                                       #
 #   Un-zigzag                           #
 #                                       #
 #########################################
+
+
+@pytest.mark.parametrize("case", test_zigzag_cases)
+def test_unzigzag(case):
+    log.info("Case: " + case.name)
+    log.debug("Input: " + str(case.block))
+
+    result = un_zigzag(case.vector)
+
+    log.debug("Result: " + str(result))
+    assert(result == case.block)
