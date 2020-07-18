@@ -151,20 +151,25 @@ class MainWindowQ2(QMainWindow):
         dialog.setViewMode(QFileDialog.List)
         if dialog.exec_():
             # Display image with info pane
-            hbox=QHBoxLayout(self)
+            # hbox=QHBoxLayout(self)
+            grid = QGridLayout(self)
 
             # The selected file is stored in fileName
             self.image_file_path=dialog.selectedFiles()[0]
 
             self.original_image_widget = Image(self.image_file_path)
-            self.compressed_image_widget = Image(self.image_file_path, compression=50)
+            self.compressed_image_widget_10 = Image(self.image_file_path, compression=10)
+            self.compressed_image_widget_50 = Image(self.image_file_path, compression=50)
+            self.compressed_image_widget_90 = Image(self.image_file_path, compression=90)
 
 
-            hbox.addWidget(self.original_image_widget)
-            hbox.addWidget(self.compressed_image_widget)
+            grid.addWidget(self.original_image_widget, 0, 0)
+            grid.addWidget(self.compressed_image_widget_10, 0, 1)
+            grid.addWidget(self.compressed_image_widget_50, 1, 0)
+            grid.addWidget(self.compressed_image_widget_90, 1, 1)
 
             central_widget=QWidget()
-            central_widget.setLayout(hbox)
+            central_widget.setLayout(grid)
             self.setCentralWidget(central_widget)
 
     def compress_90(self):
@@ -189,4 +194,4 @@ class MainWindowQ2(QMainWindow):
         """
         Change compression level and update UI
         """
-        self.compressed_image_widget.update_image(level)
+        self.compressed_image_widget_10.update_image(level)
