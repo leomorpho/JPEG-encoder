@@ -2,18 +2,32 @@ from typing import List
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
+from src.codecs.image import BmpFile
+
 
 class Image(QWidget):
-    def __init__(self, path, effect=None, *args, **kwargs):
+    def __init__(self, path=None, matrix=None, *args, **kwargs):
+        """
+        Image can display an image given either:
+            - A path to a BMP image
+            - a matrix representing an image
+        """
         super().__init__(*args, **kwargs)
-        self.bmp_image = BmpFile(path)
-        self.path = path
-        self.effect = effect
-        self.matrix = self.bmp_image.matrix
-        self.width = self.bmp_image.width
-        self.height = self.bmp_image.height
-        self.setMinimumSize(int(self.width * 1.5), int(self.height * 1.5))
 
+        if path:
+            self.bmp_image = BmpFile(path)
+            self.path = path
+            self.matrix = self.bmp_image.matrix
+            self.width = self.bmp_image.width
+            self.height = self.bmp_image.height
+        elif matrix:
+            self.matrix = matrix
+            self.width = len(matrix[0])
+            self.height = len(matrix)
+        else:
+            raise Exception("Image format not supported")
+
+        self.setMinimumSize(int(self.width * 1.5), int(self.height * 1.5))
 
     @property
     def get_bmp_image(self):

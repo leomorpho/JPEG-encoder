@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from src.codecs.wav import WavFile
+from src.codecs.image import BmpFile
 import logging
 from src.compression.compressor import SoundCompressor
 from src.ui.audio import WaveformImage, InfoWidget
@@ -20,7 +21,7 @@ class MainWindowQ1(QMainWindow):
         self.init_widget()
 
     def init_widget(self):
-        self.setWindowTitle("WAV/BMP Compression")
+        self.setWindowTitle("WAV Compression")
 
         # Menu
         self.menu = self.menuBar()
@@ -84,13 +85,13 @@ class MainWindowQ1(QMainWindow):
 class MainWindowQ2(QMainWindow):
     def __init__(self):
         QMainWindow.__init__(self)
-        self.audio_file_path = None
+        self.image_file_path = None
 
         # Initialize all other params
         self.init_widget()
 
     def init_widget(self):
-        self.setWindowTitle("WAV/BMP Compression")
+        self.setWindowTitle("BMP Compression")
 
         # Menu
         self.menu = self.menuBar()
@@ -98,9 +99,9 @@ class MainWindowQ2(QMainWindow):
         self.file_menu = self.menu.addMenu("File")
 
         # Open File QAction
-        open_action = QAction("Compress WAV file", self)
+        open_action = QAction("Compress BMP file", self)
         open_action.setShortcut('Ctrl+O')
-        open_action.setStatusTip('Compress WAV file')
+        open_action.setStatusTip('Compress BMP file')
         open_action.triggered.connect(self.openFileDialogueBox)
         self.file_menu.addAction(open_action)
 
@@ -113,7 +114,7 @@ class MainWindowQ2(QMainWindow):
         # Window dimensions
         geometry = qApp.desktop().availableGeometry(self)
 
-        if not self.audio_file_path:
+        if not self.image_file_path:
             self.openFileDialogueBox()
         else:
             self.setCentralWidget(central_widget)
@@ -127,24 +128,12 @@ class MainWindowQ2(QMainWindow):
             vbox = QVBoxLayout(self)
 
             # The selected file is stored in fileName
-            self.audio_file_path = dialog.selectedFiles()[0]
-            wav_file = WavFile(self.audio_file_path)
+            self.image_file_path = dialog.selectedFiles()[0]
 
-            imageWidget = WaveformImage(wav_file)
+            original_image_widget = Image(path=self.image_file_path)
 
-            cps = Compressor()
-            cps.compress(wav_file)
-            infoDict = {
-                "Huffman": cps.get_huffman_compression_ratio(),
-                "LZW": cps.get_LZW_compression_ratio(),
-                "Huffman-LZW": cps.get_huffman_based_LZW_compression_rate(),
-                "LZW-Huffman": cps.get_LZW_based_huffman_compression_rate()
-            }
 
-            infoWidget = InfoWidget(infoDict)
-
-            vbox.addWidget(imageWidget)
-            vbox.addWidget(infoWidget)
+            vbox.addWidget(original_image_widget)
 
             central_widget = QWidget()
             central_widget.setLayout(vbox)
