@@ -47,5 +47,6 @@ class Image(QWidget):
         pixmap = pixmap.scaled(self.height, self.width, Qt.KeepAspectRatio)
         painter.drawPixmap(self.rect(), pixmap)
 
-    def update_image(self):
-        pass
+    def update_image(self, compression_lvl):
+        self.matrix = JPEG(self.bmp_image.matrix, compression_lvl)
+        self.update()

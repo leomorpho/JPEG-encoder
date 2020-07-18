@@ -187,6 +187,6 @@ class MainWindowQ2(QMainWindow):
 
     def change_compression(self, level):
         """
-        Change compression on original image and update UI
+        Change compression level and update UI
         """
-        pass
+        self.compressed_image_widget.update_image(level)

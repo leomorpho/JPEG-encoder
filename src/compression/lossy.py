@@ -19,7 +19,7 @@ def downsample(image: List[List[List[int]]]):
     pass
 
 
-def JPEG(image: List[List[List[int]]]) -> List[List[List[int]]]:
+def JPEG(image: List[List[List[int]]], compression_lvl=90) -> List[List[List[int]]]:
     """Encode in JPEG-like format and return the decoded image
     """
     # Separate into Y, Cb, Cr layers
@@ -35,13 +35,13 @@ def JPEG(image: List[List[List[int]]]) -> List[List[List[int]]]:
             for i_block, block in enumerate(row):
                 # Encode
                 block = dct(block)
-                block = quantize(block)
+                block = quantize(block, compression_lvl)
                 vector = zigzag(block)
 
                 # Decode
                 block = un_zigzag(vector)
                 block = dct(block, inverse=True)
-                block = dequantize(block)
+                block = dequantize(block, compression_lvl)
 
                 # Update block in row
                 row[i_block] = block

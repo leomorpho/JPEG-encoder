@@ -37,7 +37,7 @@ Q90 = [[3, 2, 2, 3, 5, 8, 10, 12],
 
 
 
-def quantize(block: List[List[int]], quantization_matrix=Q90, chroma=False):
+def quantize(block: List[List[int]], compression_lvl=50, chroma=False):
     """
     Quantize a block.
 
@@ -45,6 +45,9 @@ def quantize(block: List[List[int]], quantization_matrix=Q90, chroma=False):
     :param quantization_matrix: the quantization matrix to use
     :param chroma: whether to use chroma quantization table or not
     """
+
+    quantization_matrix = get_quantization_matrix(compression_lvl)
+
     # Divide every value in the block by the corresponding value
     # in the quantization matrix (aka, same x, y indices)
     log.info("Quantize block")
@@ -54,7 +57,7 @@ def quantize(block: List[List[int]], quantization_matrix=Q90, chroma=False):
 
     return block
 
-def dequantize(block: List[List[int]], quantization_matrix=Q90, chroma=False):
+def dequantize(block: List[List[int]], compression_lvl=50, chroma=False):
     """
     Dequantize a block.
 
@@ -62,6 +65,9 @@ def dequantize(block: List[List[int]], quantization_matrix=Q90, chroma=False):
     :param quantization_matrix: the quantization matrix to use
     :param chroma: whether to use chroma quantization table or not
     """
+
+    quantization_matrix = get_quantization_matrix(compression_lvl)
+
     log.info("Dequantize block")
     # Multiply every value in the block by the corresponding value
     # in the quantization matrix (aka, same x, y indices)
@@ -73,3 +79,13 @@ def dequantize(block: List[List[int]], quantization_matrix=Q90, chroma=False):
             block[y][x] = val
 
     return block
+
+def get_quantization_matrix(level):
+    if level == 90:
+        return Q90
+    elif level == 50:
+        return Q50
+    elif level == 10:
+        return Q10
+    else:
+        raise Exception("Quantization level not supported")
