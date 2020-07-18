@@ -120,13 +120,15 @@ class MainWindowQ2(QMainWindow):
         else:
             self.setCentralWidget(central_widget)
 
+        # self.showMaximized()
+
     def openFileDialogueBox(self):
         dialog = QFileDialog(self)
         dialog.setFileMode(QFileDialog.ExistingFile)
         dialog.setViewMode(QFileDialog.List)
         if dialog.exec_():
             # Display image with info pane
-            vbox = QVBoxLayout(self)
+            hbox = QHBoxLayout(self)
 
             # The selected file is stored in fileName
             self.image_file_path = dialog.selectedFiles()[0]
@@ -135,9 +137,9 @@ class MainWindowQ2(QMainWindow):
             compressed_image_widget = Image(matrix=JPEG_file(self.image_file_path))
 
 
-            vbox.addWidget(original_image_widget)
-            vbox.addWidget(compressed_image_widget)
+            hbox.addWidget(original_image_widget)
+            hbox.addWidget(compressed_image_widget)
 
             central_widget = QWidget()
-            central_widget.setLayout(vbox)
+            central_widget.setLayout(hbox)
             self.setCentralWidget(central_widget)

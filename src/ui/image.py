@@ -27,7 +27,7 @@ class Image(QWidget):
         else:
             raise Exception("Image format not supported")
 
-        self.setMinimumSize(int(self.width * 1.5), int(self.height * 1.5))
+        self.setMinimumSize(int(self.width), int(self.height))
 
     @property
     def get_bmp_image(self):
@@ -49,4 +49,5 @@ class Image(QWidget):
                 image.setPixel(x_position, y_position, colorQt)
 
         pixmap = QPixmap(image)
+        pixmap = pixmap.scaled(self.height, self.width, Qt.KeepAspectRatio)
         painter.drawPixmap(self.rect(), pixmap)
