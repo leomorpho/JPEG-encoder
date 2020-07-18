@@ -5,6 +5,8 @@ import logging
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
 
+ZERO_CENTERING_VAL = 128
+MAX_VAL = 255
 
 def dct(block: List[List[int]], inverse=False) -> List[List[int]]:
     """Perform Discrete Cosine Transform on an 8x8 block
@@ -14,14 +16,14 @@ def dct(block: List[List[int]], inverse=False) -> List[List[int]]:
         log.info("Run inverse DCT on block")
     else:
         log.info("Run DCT on block")
+
     # Center data on zero before DCT and perform DCT on every row
     for row in block:
-        row = [val - 128 for val in row]
         if inverse:
             row = inverse_transform(row)
         else:
+            row = [val - ZERO_CENTERING_VAL for val in row]
             row = transform(row)
-        row = transform(row)
 
     # Perform DCT over every column
     for i in range(len(block)):
@@ -38,6 +40,15 @@ def dct(block: List[List[int]], inverse=False) -> List[List[int]]:
         # Set results to block
         for j in range(len(block)):      # TODO: is access by index faster than iteration?
             block[j][i] = col_vector[j]
+
+    # Reverse the centering on zero that was run before forward DCT
+    if inverse:
+        for row in block:
+            for index, val in enumerate(row):
+                if val + ZERO_CENTERING_VAL > MAX_VAL:
+                    row[index] = MAX_VAL
+                else:
+                    row[index] = val + ZERO_CENTERING_VAL
 
     return block
 

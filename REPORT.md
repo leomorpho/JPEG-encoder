@@ -51,6 +51,28 @@ The two chroma layers are quantized more aggressively than the luma layer. The 5
 
 ### Huffman encoding
 
+
+
+### Experimentation
+
+When I tired running DCT and reverse DCT, these are the results. I was making the mistake of dequantizating after the reverse DCT.
+
+![Screen Shot 2020-07-18 at 12.15.02 PM](REPORT.assets/Screen%20Shot%202020-07-18%20at%2012.15.02%20PM.png)
+
+I think there is (was) a bug at that point, but the results were quite exciting, it's like psychadelic art!
+
+In the next one, I had forgotten to add the difference of the DC coefficients (+128) back in during reverse DCT 
+
+![Screen Shot 2020-07-18 at 12.25.04 PM](REPORT.assets/Screen%20Shot%202020-07-18%20at%2012.25.04%20PM.png)
+
+Still not quite there yet. I am trying to find what I have done wrong. I have commented out the quantization steps. I am expecting to see an almost identical image to the original, since I am only running DCT on it.
+
+![Screen Shot 2020-07-18 at 12.41.13 PM](REPORT.assets/Screen%20Shot%202020-07-18%20at%2012.41.13%20PM.png)
+
+I tested to see if the previous step was much lighter because I was adding 128 to every pixel twice after DCT, but the pixels are clearly out of the [0, 255] bound now:
+
+![Screen Shot 2020-07-18 at 12.44.28 PM](REPORT.assets/Screen%20Shot%202020-07-18%20at%2012.44.28%20PM.png)
+
 ## References
 
 * [Comparative data compression techniques and multi-compression results](https://iopscience.iop.org/article/10.1088/1757-899X/53/1/012081/pdf)
