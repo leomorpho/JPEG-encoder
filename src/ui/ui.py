@@ -4,7 +4,8 @@ from PyQt5.QtCore import *
 from src.codecs.wav import WavFile
 import logging
 from src.compression.compressor import SoundCompressor
-from src.ui.audio import WaveformImage
+from src.ui.audio import WaveformImage, InfoWidget
+from src.ui.image import Image
 
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
@@ -148,29 +149,3 @@ class MainWindowQ2(QMainWindow):
             central_widget = QWidget()
             central_widget.setLayout(vbox)
             self.setCentralWidget(central_widget)
-
-
-class InfoWidget(QWidget):
-    def __init__(self, infoDict, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        layout = QHBoxLayout(self)
-
-        left_widget = QWidget()
-        layout_l = QVBoxLayout(self)
-        layout_l.addWidget(QLabel("Huffman compression ratio"))
-        layout_l.addWidget(QLabel("LZW compression ratio"))
-        layout_l.addWidget(QLabel("Huffman-based LZW compression ratio"))
-        layout_l.addWidget(QLabel("LZW-based Huffman compression ratio"))
-        left_widget.setLayout(layout_l)
-
-        right_widget = QWidget()
-        layout_r = QVBoxLayout(self)
-        layout_r.addWidget(QLabel(str(infoDict["Huffman"])))
-        layout_r.addWidget(QLabel(str(infoDict["LZW"])))
-        layout_r.addWidget(QLabel(str(infoDict["Huffman-LZW"])))
-        layout_r.addWidget(QLabel(str(infoDict["LZW-Huffman"])))
-        right_widget.setLayout(layout_r)
-
-        layout.addWidget(left_widget)
-        layout.addWidget(right_widget)
-        self.setLayout(layout)
