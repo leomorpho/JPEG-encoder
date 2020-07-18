@@ -37,7 +37,7 @@ Q90 = [[3, 2, 2, 3, 5, 8, 10, 12],
 
 
 
-def quantize(block: List[List[int]], quantization_matrix=Q50, chroma=False):
+def quantize(block: List[List[int]], quantization_matrix=Q90, chroma=False):
     """
     Quantize a block.
 
@@ -54,7 +54,7 @@ def quantize(block: List[List[int]], quantization_matrix=Q50, chroma=False):
 
     return block
 
-def dequantize(block: List[List[int]], quantization_matrix=Q50, chroma=False):
+def dequantize(block: List[List[int]], quantization_matrix=Q90, chroma=False):
     """
     Dequantize a block.
 

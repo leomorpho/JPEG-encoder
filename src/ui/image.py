@@ -3,29 +3,24 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from src.codecs.image import BmpFile
+from src.compression.lossy import JPEG
 
 
 class Image(QWidget):
-    def __init__(self, path=None, matrix=None, *args, **kwargs):
+    def __init__(self, path, compression=None, *args, **kwargs):
         """
-        Image can display an image given either:
-            - A path to a BMP image
-            - a matrix representing an image
+        Display an image. If compression is set, will display the compressed image.
         """
         super().__init__(*args, **kwargs)
 
-        if path:
-            self.bmp_image = BmpFile(path)
-            self.path = path
-            self.matrix = self.bmp_image.matrix
-            self.width = self.bmp_image.width
-            self.height = self.bmp_image.height
-        elif matrix:
-            self.matrix = matrix
-            self.width = len(matrix[0])
-            self.height = len(matrix)
-        else:
-            raise Exception("Image format not supported")
+        self.bmp_image = BmpFile(path)
+        self.path = path
+        self.matrix = self.bmp_image.matrix
+        self.width = self.bmp_image.width
+        self.height = self.bmp_image.height
+
+        if compression:
+            self.matrix = JPEG(self.matrix)
 
         self.setMinimumSize(int(self.width), int(self.height))
 
@@ -51,3 +46,6 @@ class Image(QWidget):
         pixmap = QPixmap(image)
         pixmap = pixmap.scaled(self.height, self.width, Qt.KeepAspectRatio)
         painter.drawPixmap(self.rect(), pixmap)
+
+    def update_image(self):
+        pass

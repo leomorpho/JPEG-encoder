@@ -18,15 +18,6 @@ JPEG_SUPPORTED_ENCODING_FORMATS = {"bmp"}
 def downsample(image: List[List[List[int]]]):
     pass
 
-def JPEG_file(filepath: str, ftype="bmp"):
-    if ftype not in JPEG_SUPPORTED_ENCODING_FORMATS:
-        raise Exception(f"JPEG encoder does not support the {ftype} format")
-
-    image = BmpFile(filepath)
-
-    return JPEG(image.matrix)
-
-
 
 def JPEG(image: List[List[List[int]]]) -> List[List[List[int]]]:
     """Encode in JPEG-like format and return the decoded image
