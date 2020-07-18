@@ -150,7 +150,7 @@ class HuffmanEncoder:
     @staticmethod
     def sample_to_code_dict(leaves: List[HuffmanNode]):
         """Create a dictionary of sample value to code. This is used to encode
-        a stringa of data.
+        a string of data.
         """
         newDict = {}
         for leaf in leaves:

@@ -1,5 +1,8 @@
 from typing import List
 import logging
+from src.compression.dct import dct
+from src.compression.quantization import quantize, dequantize
+from src.compression.zigzag import zigzag, un_zigzag
 
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
@@ -26,28 +29,34 @@ def JPEG(image: List[List[List[int]]]) -> List[List[List[int]]]:
 
         for row in blocked_layer:
             for block in row:
-                pass
-                # Call DCT on every block
-                # Quantize every block
-                # Zigzag entropy code
+                block = dct(block)
+                block = quantize(block)
+                vector = zigzag(block)
 
-    # Save file
-    with open(OUTPUT_FILE, "w+") as fp:
-        fp.write()
+                block = un_zigzag(vector)
+                block = dct(block, inverse=True)
+                block = dequantize(block)
+        layer = block_join_layer(layer)
+    image: List[List[List[int]]] = join_image_layers(layers)
 
-    # Read file
-    with open(OUTPUT_FILE, "r") as fp:
-        fp.read()
+    # # Save file
+    # with open(OUTPUT_FILE, "w+") as fp:
+    #     fp.write()
+
+    # # Read file
+    # with open(OUTPUT_FILE, "r") as fp:
+    #     fp.read()
 
     # De-encode Huffman
     # Dequantize every block
     # Call DCT inverse on every block
 
     # Join 8x8 blocks
-    layers_joined_blocks.append(block_join_layer(layer))
+    # for layer in layers:
+    #     layers_joined_blocks.append(block_join_layer(layer))
 
-    # Join Y, Cb, Cr layers
-    image: List[List[List[int]]] = join_image_layers(layers_joined_blocks)
+    #     # Join Y, Cb, Cr layers
+    #     image: List[List[List[int]]] = join_image_layers(layers_joined_blocks)
 
     return image
 
@@ -94,27 +103,35 @@ def join_image_layers(layers: List[List[List[int]]]) -> List[List[List[int]]]:
     return image
 
 
-def block_split_layer(layer: List[List[int]]):
-    """Split the layer into 8x8 blocks
+def block_split_layer(layer: List[List[int]], block_size=8):
     """
-    # If not enough values to create an 8x8 block, repeat closest values
+    Split the layer into blocks
+
+    :param layer: the layer to split
+    :param block_size: the size of the blocks to split the layer to
+    """
+
+    # If not enough values to create a block of the reruired size,
+    # repeat closest values
     blocked_layer = []
 
     layer_width = len(layer[0])
     layer_height = len(layer)
+    log.debug(f"Layer w x h: {layer_width} x {layer_height}")
 
     # Top of image is at 0, 0, which is the top-left corner of the actual image.
     x_layer, y_layer = 0, 0
 
+    blocked_row = []
     while True:
         # Create empty row
-        blocked_row = []
 
         # Allocate new empty 8x8 block
-        block = [[0 for i in range(8)] for i in range(8)]
+        block = [[0 for i in range(block_size)] for i in range(block_size)]
 
-        for y_curr in range(y_layer, y_layer + 8):
-            for x_curr in range(x_layer, x_layer + 8):
+        # Get square block
+        for y_curr in range(y_layer, y_layer + block_size):
+            for x_curr in range(x_layer, x_layer + block_size):
                 # x and y are inversed in this representation. A row is a y-coordinate. Items
                 # within a row are x-coordinate.
                 try:
@@ -122,37 +139,45 @@ def block_split_layer(layer: List[List[int]]):
                                             x_layer] = layer[y_curr][x_curr]
                 # If not enough values for 8x8 block, repeat last value.
                 except IndexError:
-                    # Block intersects lower right corner
-                    if x_curr > layer_width and y_curr > layer_height:
+                    log.debug(f"x_curr: {x_curr}, y_curr: {y_curr}")
+                    # Block intersects lower right corner of image
+                    if x_curr >= layer_width and y_curr >= layer_height:
+                        log.debug("Block intersects right bottom corner of image")
                         block[y_curr - y_layer][x_curr -
                                                 x_layer] = layer[layer_height - 1][layer_width - 1]
                     # Block intersects right edge of image
-                    elif x_curr > layer_width:
+                    elif x_curr >= layer_width:
+                        log.debug("Block intersects right edge of image")
                         block[y_curr - y_layer][x_curr -
                                                 x_layer] = layer[y_curr][layer_width - 1]
                     # Block intersects bottom edge of image
                     else:
+                        log.debug("Block intersects bottom edge of image")
                         block[y_curr - y_layer][x_curr -
                                                 x_layer] = layer[layer_height - 1][x_curr]
 
+        log.debug(block)
         # Add block to row
         blocked_row.append(block)
 
         # Shift top-left corner of "block" window to the right
-        x_layer += 8
+        x_layer += block_size
 
         # Test to see if we reached right edge of picture
+        shift_down = False
         try:
             layer[y_layer][x_layer]
         except IndexError:
             shift_down = True
 
         if shift_down:
+            shift_down = False
             # Add row to blocked layer
             blocked_layer.append(blocked_row)
+            blocked_row = []
 
             # Shift block top-left origin down
-            y_layer += 8
+            y_layer += block_size
 
             # Reset x-coordinate to left edge
             x_layer = 0
@@ -166,9 +191,11 @@ def block_split_layer(layer: List[List[int]]):
     return blocked_layer
 
 
-def block_join_layer(blocked_layer: List[List[int]]):
+def block_join_layer(blocked_layer: List[List[int]], block_size=8):
     """Join 8x8 blocks into a layer. This is the inverse operation
     of block_split_layer
+    :param layer: the layer to split
+    :param block_size: the size of the blocks to split the layer to
     """
     # Structure of blocked_layer:
     # [[block, block],
