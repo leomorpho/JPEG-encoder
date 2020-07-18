@@ -19,7 +19,7 @@ def zigzag(block: List[List[int]]):
     x, y = 0, 0
 
     vector.append(block[y][x])
-    log.debug(f"{x}, {y}")
+    # log.debug(f"{x}, {y}")
 
     while True:
         # Go one step right or down
@@ -31,7 +31,7 @@ def zigzag(block: List[List[int]]):
             break
 
         vector.append(block[y][x])
-        log.debug(f"{x}, {y}")
+        # log.debug(f"{x}, {y}")
 
         # Traverse diagonal towards bottom-left
         while True:
@@ -43,7 +43,7 @@ def zigzag(block: List[List[int]]):
                 x += 1
                 break
             vector.append(block[y][x])
-            log.debug(f"{x}, {y}")
+            # log.debug(f"{x}, {y}")
 
         # Go one step down or right
         if y < max_index:
@@ -54,7 +54,7 @@ def zigzag(block: List[List[int]]):
             break
 
         vector.append(block[y][x])
-        log.debug(f"{x}, {y}")
+        # log.debug(f"{x}, {y}")
 
         # Traverse diagonal towards top-right
         while True:
@@ -66,7 +66,7 @@ def zigzag(block: List[List[int]]):
                 x -= 1
                 break
             vector.append(block[y][x])
-            log.debug(f"{x}, {y}")
+            # log.debug(f"{x}, {y}")
 
     return vector
 
@@ -86,7 +86,7 @@ def un_zigzag(vector: [List[int]]):
     x, y = 0, 0
 
     block[y][x] = vector.pop(0)
-    log.debug(f"{x}, {y}")
+    # log.debug(f"{x}, {y}")
 
     while True:
         # Go one step right or down
@@ -98,7 +98,7 @@ def un_zigzag(vector: [List[int]]):
             break
 
         block[y][x] = vector.pop(0)
-        log.debug(f"{x}, {y}")
+        # log.debug(f"{x}, {y}")
 
         # Traverse diagonal towards bottom-left
         while True:
@@ -110,7 +110,7 @@ def un_zigzag(vector: [List[int]]):
                 x += 1
                 break
             block[y][x] = vector.pop(0)
-            log.debug(f"{x}, {y}")
+            # log.debug(f"{x}, {y}")
 
         # Go one step down or right
         if y < max_index:
@@ -121,7 +121,7 @@ def un_zigzag(vector: [List[int]]):
             break
 
         block[y][x] = vector.pop(0)
-        log.debug(f"{x}, {y}")
+        # log.debug(f"{x}, {y}")
 
         # Traverse diagonal towards top-right
         while True:
@@ -133,6 +133,6 @@ def un_zigzag(vector: [List[int]]):
                 x -= 1
                 break
             block[y][x] = vector.pop(0)
-            log.debug(f"{x}, {y}")
+            # log.debug(f"{x}, {y}")
 
     return block

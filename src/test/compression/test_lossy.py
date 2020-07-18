@@ -25,14 +25,12 @@ test_jpeg_cases = [
     InputOutputCase(
         name="Nominal",
         input_val=[
-            [[123, 123, 123], [123, 123, 123], [123, 123, 123], [123, 123, 123]],
-            [[123, 123, 123], [123, 123, 123], [123, 123, 123], [123, 123, 123]],
-            [[123, 123, 123], [123, 123, 123], [123, 123, 123], [123, 123, 123]],
-            [[123, 123, 123], [123, 123, 123], [123, 123, 123], [123, 123, 123]],
-            [[123, 123, 123], [123, 123, 123], [123, 123, 123], [123, 123, 123]],
+            [[1, 123, 123], [2, 123, 123], [3, 123, 123], [4, 123, 123]],
+            [[5, 123, 123], [6, 123, 123], [7, 123, 123], [8, 123, 123]],
+            [[9, 123, 123], [10, 123, 123], [11, 123, 123], [12, 123, 123]],
+            [[13, 123, 123], [14, 123, 123], [15, 123, 123], [16, 123, 123]],
         ],
         expected_output=[
-            [[123, 123, 123], [123, 123, 123], [123, 123, 123], [123, 123, 123]],
             [[123, 123, 123], [123, 123, 123], [123, 123, 123], [123, 123, 123]],
             [[123, 123, 123], [123, 123, 123], [123, 123, 123], [123, 123, 123]],
             [[123, 123, 123], [123, 123, 123], [123, 123, 123], [123, 123, 123]],
@@ -42,15 +40,15 @@ test_jpeg_cases = [
 ]
 
 
-# @pytest.mark.parametrize("case", test_jpeg_cases)
-# def test_jpeg(case):
-#     log.info("Case: " + case.name)
-#     log.debug("Input: " + str(case.input_val))
-#
-#     result = JPEG(case.input_val)
-#
-#     log.debug("Result: " + str(result))
-#     assert(result == case.expected_output)
+@pytest.mark.parametrize("case", test_jpeg_cases)
+def test_jpeg(case):
+    log.info("Case: " + case.name)
+    log.debug("Input: " + str(case.input_val))
+
+    result = JPEG(case.input_val)
+
+    log.debug("Result: " + str(result))
+    assert(result == case.expected_output)
 
 #########################################
 #                                       #

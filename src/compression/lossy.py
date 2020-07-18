@@ -24,19 +24,28 @@ def JPEG(image: List[List[List[int]]]) -> List[List[List[int]]]:
 
     layers_joined_blocks = []
 
-    for layer in layers:
+    # Make new copy for JPEG version
+    for i_layer, layer in enumerate(layers):
         blocked_layer = block_split_layer(layer)
 
-        for row in blocked_layer:
-            for block in row:
+        for i_row, row in enumerate(blocked_layer):
+            for i_block, block in enumerate(row):
+                # Encode
                 block = dct(block)
                 block = quantize(block)
                 vector = zigzag(block)
 
+                # Decode
                 block = un_zigzag(vector)
                 block = dct(block, inverse=True)
                 block = dequantize(block)
-        layer = block_join_layer(layer)
+
+                # Update block in row
+                row[i_block] = block
+
+            blocked_layer[i_row] = row
+        layers[i_layer] = block_join_layer(blocked_layer)
+
     image: List[List[List[int]]] = join_image_layers(layers)
 
     # # Save file
@@ -139,24 +148,24 @@ def block_split_layer(layer: List[List[int]], block_size=8):
                                             x_layer] = layer[y_curr][x_curr]
                 # If not enough values for 8x8 block, repeat last value.
                 except IndexError:
-                    log.debug(f"x_curr: {x_curr}, y_curr: {y_curr}")
+                    # log.debug(f"x_curr: {x_curr}, y_curr: {y_curr}")
                     # Block intersects lower right corner of image
                     if x_curr >= layer_width and y_curr >= layer_height:
-                        log.debug("Block intersects right bottom corner of image")
+                        # log.debug("Block intersects right bottom corner of image")
                         block[y_curr - y_layer][x_curr -
                                                 x_layer] = layer[layer_height - 1][layer_width - 1]
                     # Block intersects right edge of image
                     elif x_curr >= layer_width:
-                        log.debug("Block intersects right edge of image")
+                        # log.debug("Block intersects right edge of image")
                         block[y_curr - y_layer][x_curr -
                                                 x_layer] = layer[y_curr][layer_width - 1]
                     # Block intersects bottom edge of image
                     else:
-                        log.debug("Block intersects bottom edge of image")
+                        # log.debug("Block intersects bottom edge of image")
                         block[y_curr - y_layer][x_curr -
                                                 x_layer] = layer[layer_height - 1][x_curr]
 
-        log.debug(block)
+        # log.debug(block)
         # Add block to row
         blocked_row.append(block)
 

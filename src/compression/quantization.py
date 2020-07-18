@@ -1,4 +1,8 @@
 from typing import List
+import logging
+
+log = logging.getLogger()
+log.setLevel(logging.DEBUG)
 
 # Find tables at p.284 of Professor's book
 # TODO: special quantization for chroma not implemented yet. Remove if not going to.
@@ -43,6 +47,7 @@ def quantize(block: List[List[int]], quantization_matrix=Q50, chroma=False):
     """
     # Divide every value in the block by the corresponding value
     # in the quantization matrix (aka, same x, y indices)
+    log.info("Quantize block")
     for x in range(8):
         for y in range(8):
             block[y][x] = int(block[y][x] / quantization_matrix[y][x])
@@ -57,6 +62,7 @@ def dequantize(block: List[List[int]], quantization_matrix=Q50, chroma=False):
     :param quantization_matrix: the quantization matrix to use
     :param chroma: whether to use chroma quantization table or not
     """
+    log.info("Dequantize block")
     # Multiply every value in the block by the corresponding value
     # in the quantization matrix (aka, same x, y indices)
     for x in range(8):

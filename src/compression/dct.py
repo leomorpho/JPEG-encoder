@@ -1,12 +1,19 @@
 import math
 from typing import List
+import logging
+
+log = logging.getLogger()
+log.setLevel(logging.DEBUG)
 
 
 def dct(block: List[List[int]], inverse=False) -> List[List[int]]:
     """Perform Discrete Cosine Transform on an 8x8 block
     """
     # Perform DCT in 2 parts, first for rows, then for columns
-
+    if inverse:
+        log.info("Run inverse DCT on block")
+    else:
+        log.info("Run DCT on block")
     # Center data on zero before DCT and perform DCT on every row
     for row in block:
         row = [val - 128 for val in row]
