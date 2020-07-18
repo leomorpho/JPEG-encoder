@@ -191,30 +191,33 @@ def block_split_layer(layer: List[List[int]], block_size=8):
     return blocked_layer
 
 
-def block_join_layer(blocked_layer: List[List[int]], block_size=8):
+def block_join_layer(blocked_layer: List[List[int]]):
     """Join 8x8 blocks into a layer. This is the inverse operation
     of block_split_layer
     :param layer: the layer to split
-    :param block_size: the size of the blocks to split the layer to
     """
     # Structure of blocked_layer:
     # [[block, block],
     #  [block, block]]
+
+    row_size = len(blocked_layer[0][0])
 
     # (1) Merge all blocks horizontally
     # Enumerate over ALL blocks
     horizontally_merged_blocks = []
     for blocks_row in blocked_layer:
         # Join blocks which are in the same row.
-        # It should be 8 heigh by (8 x number of blocks) long.
-        joined_block_rows = [[] for i in range(8)]
+        joined_block_rows = [[] for i in range(row_size)]
+
         for block in blocks_row:
 
             # Enumerate over x, y of a block
             for block_row_index, block_row in enumerate(block):
                 joined_block_rows[block_row_index].extend(block_row)
+        log.debug(joined_block_rows)
 
         horizontally_merged_blocks.append(joined_block_rows)
+
 
     # (2) Merge all block rows vertically
     # Structure of blocked_layer:
