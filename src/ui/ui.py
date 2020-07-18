@@ -7,6 +7,7 @@ import logging
 from src.compression.compressor import SoundCompressor
 from src.ui.audio import WaveformImage, InfoWidget
 from src.ui.image import Image
+from src.compression.lossy import JPEG_file
 
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
@@ -131,9 +132,11 @@ class MainWindowQ2(QMainWindow):
             self.image_file_path = dialog.selectedFiles()[0]
 
             original_image_widget = Image(path=self.image_file_path)
+            compressed_image_widget = Image(matrix=JPEG_file(self.image_file_path))
 
 
             vbox.addWidget(original_image_widget)
+            vbox.addWidget(compressed_image_widget)
 
             central_widget = QWidget()
             central_widget.setLayout(vbox)

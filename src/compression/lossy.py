@@ -3,6 +3,7 @@ import logging
 from src.compression.dct import dct
 from src.compression.quantization import quantize, dequantize
 from src.compression.zigzag import zigzag, un_zigzag
+from src.codecs.image import BmpFile
 
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
@@ -11,9 +12,20 @@ log.setLevel(logging.DEBUG)
 # TODO: implement GMM
 OUTPUT_FILE = "output.img"
 
+JPEG_SUPPORTED_ENCODING_FORMATS = {"bmp"}
+
 
 def downsample(image: List[List[List[int]]]):
     pass
+
+def JPEG_file(filepath: str, ftype="bmp"):
+    if ftype not in JPEG_SUPPORTED_ENCODING_FORMATS:
+        raise Exception(f"JPEG encoder does not support the {ftype} format")
+
+    image = BmpFile(filepath)
+
+    return JPEG(image.matrix)
+
 
 
 def JPEG(image: List[List[List[int]]]) -> List[List[List[int]]]:
