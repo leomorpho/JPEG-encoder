@@ -9,6 +9,7 @@ ZERO_CENTERING_VAL = 128
 MAX_VAL = 255
 MIN_VAL = 0
 
+
 def dct_forward(block: List[List[int]]) -> List[List[int]]:
     """Perform Discrete Cosine Transform on an 8x8 block
     """
@@ -33,8 +34,8 @@ def dct_forward(block: List[List[int]]) -> List[List[int]]:
         for j in range(len(block)):      # TODO: is access by index faster than iteration?
             block[j][i] = col_vector[j]
 
-
     return block
+
 
 def dct_inverse(block: List[List[int]]) -> List[List[int]]:
     """Perform reverse Discrete Cosine Transform on an 8x8 block
@@ -62,17 +63,16 @@ def dct_inverse(block: List[List[int]]) -> List[List[int]]:
     # For every row and every member of the row.
     for i, row in enumerate(block):
         for j, val in enumerate(row):
-            if val + ZERO_CENTERING_VAL > MAX_VAL:
+            block[i][j] = val + ZERO_CENTERING_VAL
+            if block[i][j] > MAX_VAL:
                 block[i][j] = MAX_VAL
-            elif val + ZERO_CENTERING_VAL < MIN_VAL:
+            elif block[i][j] < MIN_VAL:
                 block[i][j] = MIN_VAL
-            else:
-                block[i][j] = val + ZERO_CENTERING_VAL
 
     return block
 
 
-#TODO: rewrite DCT in my own code.
+# TODO: rewrite DCT in my own code.
 
 # DCT type II, unscaled.
 # See: https://en.wikipedia.org/wiki/Discrete_cosine_transform#DCT-II

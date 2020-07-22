@@ -87,11 +87,13 @@ I applied only the row DCT and adjusted the reverse DCT to set 0 if values were 
 
 ![Screen Shot 2020-07-22 at 3.36.05 PM](REPORT.assets/Screen%20Shot%202020-07-22%20at%203.36.05%20PM.png)
 
-Adjusted the previous state to also apply column DCT. It is better than before. However, the quality seems radically lower than 90%. There is another bug.
+Adjusted the previous state to also apply column DCT. It is better than before. However, the quality is much lower. I wonder if that is caused by the naive DCT implementation. Otherwise, there is another bug.
 
 ![Screen Shot 2020-07-22 at 3.37.28 PM](REPORT.assets/Screen%20Shot%202020-07-22%20at%203.37.28%20PM.png)
 
+Reapplying quantization for 90% quality yields a result which appears to be much lower than 90% of the original's quality.
 
+![Screen Shot 2020-07-22 at 3.42.17 PM](REPORT.assets/Screen%20Shot%202020-07-22%20at%203.42.17%20PM.png)
 
 ## References
 

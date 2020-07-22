@@ -35,12 +35,12 @@ def JPEG(image: List[List[List[int]]], compression_lvl=90) -> List[List[List[int
             for i_block, block in enumerate(row):
                 # Encode
                 block = dct_forward(block)
-                # block = quantize(block, compression_lvl)
-                # vector = zigzag(block)
+                block = quantize(block, compression_lvl)
+                vector = zigzag(block)
 
-                # # Decode
-                # block = un_zigzag(vector)
-                # block = dequantize(block, compression_lvl)
+                # Decode
+                block = un_zigzag(vector)
+                block = dequantize(block, compression_lvl)
                 block = dct_inverse(block)
 
                 # Update block in row
