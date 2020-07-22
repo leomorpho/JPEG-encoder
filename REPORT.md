@@ -69,9 +69,29 @@ Still not quite there yet. I am trying to find what I have done wrong. I have co
 
 ![Screen Shot 2020-07-18 at 12.41.13 PM](REPORT.assets/Screen%20Shot%202020-07-18%20at%2012.41.13%20PM.png)
 
-I tested to see if the previous step was much lighter because I was adding 128 to every pixel twice after DCT, but the pixels are clearly out of the [0, 255] bound now:
+July 15: I tested to see if the previous step was much lighter because I was adding 128 to every pixel twice after DCT, but the pixels are clearly out of the [0, 255] bound now:
 
 ![Screen Shot 2020-07-18 at 12.44.28 PM](REPORT.assets/Screen%20Shot%202020-07-18%20at%2012.44.28%20PM.png)
+
+I re-wrote my DCT steps as I am pretty confident my bug is there. I made sure to perform the following in order, and then in reverse for reverse DCT:
+
+* Substract 128 for al values
+* DCT for rows
+* DCT for columns
+
+July22 : Clearly, there is still something wrong. I do think there is an improvement, as the image is not overexposed anymore. 
+
+![Screen Shot 2020-07-22 at 3.30.12 PM](REPORT.assets/Screen%20Shot%202020-07-22%20at%203.30.12%20PM.png)
+
+I applied only the row DCT and adjusted the reverse DCT to set 0 if values were below zero. Looking better.
+
+![Screen Shot 2020-07-22 at 3.36.05 PM](REPORT.assets/Screen%20Shot%202020-07-22%20at%203.36.05%20PM.png)
+
+Adjusted the previous state to also apply column DCT. It is better than before. However, the quality seems radically lower than 90%. There is another bug.
+
+![Screen Shot 2020-07-22 at 3.37.28 PM](REPORT.assets/Screen%20Shot%202020-07-22%20at%203.37.28%20PM.png)
+
+
 
 ## References
 

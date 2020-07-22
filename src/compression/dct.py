@@ -7,23 +7,18 @@ log.setLevel(logging.DEBUG)
 
 ZERO_CENTERING_VAL = 128
 MAX_VAL = 255
+MIN_VAL = 0
 
-def dct(block: List[List[int]], inverse=False) -> List[List[int]]:
+def dct_forward(block: List[List[int]]) -> List[List[int]]:
     """Perform Discrete Cosine Transform on an 8x8 block
     """
     # Perform DCT in 2 parts, first for rows, then for columns
-    if inverse:
-        log.info("Run inverse DCT on block")
-    else:
-        log.info("Run DCT on block")
+    log.info("Run DCT on block")
 
     # Center data on zero before DCT and perform DCT on every row
-    for row in block:
-        if inverse:
-            row = inverse_transform(row)
-        else:
-            row = [val - ZERO_CENTERING_VAL for val in row]
-            row = transform(row)
+    for index, row in enumerate(block):
+        row = [val - ZERO_CENTERING_VAL for val in row]
+        block[index] = transform(row)
 
     # Perform DCT over every column
     for i in range(len(block)):
@@ -32,23 +27,47 @@ def dct(block: List[List[int]], inverse=False) -> List[List[int]]:
         for j in range(len(block)):      # TODO: is access by index faster than iteration?
             col_vector.append(block[j][i])
 
-        if inverse:
-            col_vector = inverse_transform(col_vector)
-        else:
-            col_vector = transform(col_vector)
+        col_vector = transform(col_vector)
 
         # Set results to block
         for j in range(len(block)):      # TODO: is access by index faster than iteration?
             block[j][i] = col_vector[j]
 
-    # Reverse the centering on zero that was run before forward DCT
-    if inverse:
-        for row in block:
-            for index, val in enumerate(row):
-                if val + ZERO_CENTERING_VAL > MAX_VAL:
-                    row[index] = MAX_VAL
-                else:
-                    row[index] = val + ZERO_CENTERING_VAL
+
+    return block
+
+def dct_inverse(block: List[List[int]]) -> List[List[int]]:
+    """Perform reverse Discrete Cosine Transform on an 8x8 block
+    """
+    # Perform DCT in 2 parts, first for columns, then for rows
+    log.info("Run inverse DCT on block")
+
+    # Perform DCT over every column
+    for i in range(len(block)):
+        col_vector = []
+        # Create column vector
+        for j in range(len(block)):      # TODO: is access by index faster than iteration?
+            col_vector.append(block[j][i])
+
+        col_vector = inverse_transform(col_vector)
+
+        # Set results to block
+        for j in range(len(block)):      # TODO: is access by index faster than iteration?
+            block[j][i] = col_vector[j]
+
+    for index, row in enumerate(block):
+        block[index] = inverse_transform(row)
+
+    # Reverse the centering on zero that was run before forward DCT.
+    # For every row and every member of the row.
+    for i, row in enumerate(block):
+        for j, val in enumerate(row):
+            if val + ZERO_CENTERING_VAL > MAX_VAL:
+                block[i][j] = MAX_VAL
+            elif val + ZERO_CENTERING_VAL < MIN_VAL:
+                block[i][j] = MIN_VAL
+            else:
+                block[i][j] = val + ZERO_CENTERING_VAL
 
     return block
 

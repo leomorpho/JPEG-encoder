@@ -1,6 +1,6 @@
 from typing import List
 import logging
-from src.compression.dct import dct
+from src.compression.dct import dct_forward, dct_inverse
 from src.compression.quantization import quantize, dequantize
 from src.compression.zigzag import zigzag, un_zigzag
 from src.codecs.image import BmpFile
@@ -34,14 +34,14 @@ def JPEG(image: List[List[List[int]]], compression_lvl=90) -> List[List[List[int
         for i_row, row in enumerate(blocked_layer):
             for i_block, block in enumerate(row):
                 # Encode
-                block = dct(block)
+                block = dct_forward(block)
                 # block = quantize(block, compression_lvl)
                 # vector = zigzag(block)
 
                 # # Decode
                 # block = un_zigzag(vector)
                 # block = dequantize(block, compression_lvl)
-                block = dct(block, inverse=True)
+                block = dct_inverse(block)
 
                 # Update block in row
                 row[i_block] = block
