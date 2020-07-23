@@ -157,7 +157,7 @@ class MainWindowQ2(QMainWindow):
             self.image_file_path=dialog.selectedFiles()[0]
 
             self.original_image_widget = Image(self.image_file_path)
-            self.compressed_image_widget = Image(self.image_file_path, compression=50)
+            self.compressed_image_widget = Image(self.image_file_path, compression=90)
 
 
             hbox.addWidget(self.original_image_widget)

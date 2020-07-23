@@ -4,6 +4,7 @@ from src.compression.dct import dct_forward, dct_inverse
 from src.compression.quantization import quantize, dequantize
 from src.compression.zigzag import zigzag, un_zigzag
 from src.codecs.image import BmpFile
+from src.compression.lossless import HuffmanEncoder
 
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
@@ -22,6 +23,8 @@ def downsample(image: List[List[List[int]]]):
 def JPEG(image: List[List[List[int]]], compression_lvl=90) -> List[List[List[int]]]:
     """Encode in JPEG-like format and return the decoded image
     """
+    he = HuffmanEncoder()
+
     # Separate into Y, Cb, Cr layers
     layers: List[List[List[int]]] = separate_image_layers(image)
 

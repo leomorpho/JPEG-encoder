@@ -51,7 +51,7 @@ The two chroma layers are quantized more aggressively than the luma layer. The 5
 
 ### Huffman encoding
 
-
+The Huffman tree is sent a priori for my implementation, meaning that it is part of the image in `IMG` format.
 
 ### Experimentation
 

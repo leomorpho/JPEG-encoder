@@ -20,7 +20,7 @@ class Image(QWidget):
         self.height = self.bmp_image.height
 
         if compression:
-            self.matrix = JPEG(self.matrix)
+            self.matrix = JPEG(self.matrix, compression)
 
         self.setMinimumSize(int(self.width), int(self.height))
 

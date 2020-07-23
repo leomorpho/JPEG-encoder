@@ -218,3 +218,9 @@ class BmpFile(BmpCmnMixin):
     def height(self):
         """Get height of image"""
         return self._image_header.height
+
+class IMGFile:
+    """
+    Format of compressed BMP file using JPEG-like encoder
+    """
+    pass

@@ -89,10 +89,10 @@ class HuffmanEncoder:
         del(prob_distr)
 
         # Create Huffman tree
-        root_node = self.create_tree(leaves)
+        self.root_node = self.create_tree(leaves)
 
         # Assign code to every node
-        root_node = self.assign_codes(root_node)
+        self.root_node = self.assign_codes(self.root_node)
 
         # Create dict of sample to code
         sample_to_code_dict = self.sample_to_code_dict(leaves)
