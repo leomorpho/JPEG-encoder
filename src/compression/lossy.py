@@ -20,17 +20,17 @@ def downsample(image: List[List[List[int]]]):
     pass
 
 
-def JPEG(image: List[List[List[int]]], compression_lvl=90) -> List[List[List[int]]]:
+def JPEG(original_image: List[List[List[int]]], compression_lvl=90) -> List[List[List[int]]]:
     """Encode in JPEG-like format and return the decoded image
     """
     he = HuffmanEncoder()
 
     # Separate into Y, Cb, Cr layers
-    layers: List[List[List[int]]] = separate_image_layers(image)
+    layers: List[List[List[int]]] = separate_image_layers(original_image)
 
     # Hold zigzaged layers which are ready to be Huffman encoded and
     # persisted to disk.
-    layers_zigzaged = []
+    layers_zigzagged = []
 
     layers_joined_blocks = []
 
@@ -59,21 +59,26 @@ def JPEG(image: List[List[List[int]]], compression_lvl=90) -> List[List[List[int
             blocked_layer[i_row] = row
             blocked_layer_zigzagged.append(blocked_row_vector)
         layers[i_layer] = block_join_layer(blocked_layer)
-        layers_zigzaged.append(blocked_layer_zigzagged)
+        layers_zigzagged.append(blocked_layer_zigzagged)
 
     im = IMGFile()
-    im.encode(layers_zigzaged)
-    im.write(OUTPUT_FILE)
+    im.encode(layers_zigzagged)
+    # im.write(OUTPUT_FILE)
 
-    im.read(OUTPUT_FILE)
-    decoded_image = im.decode()
+    # im.read(OUTPUT_FILE)
+    decoded_layers_zigzagged = im.decode()
+    print("layers_zigzagged[0]")
+    print(layers_zigzagged[0])
+    print()
+    print("decoded_layers_zigzagged[0]")
+    print(decoded_layers_zigzagged[0])
+
+    assert(layers_zigzagged == decoded_layers_zigzagged)
 
     image: List[List[List[int]]] = join_image_layers(layers)
 
-    # The two should be equal. When they are, only return the decoded image.
-    assert(image == decoded_image)
 
-    # img_file = IMGFile.encode(layers_zigzaged)
+    # img_file = IMGFile.encode(layers_zigzagged)
     # img_file.write(OUTPUT_FILE)
 
     # # Save file

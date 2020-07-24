@@ -54,10 +54,11 @@ def dct_inverse(block: List[List[int]]) -> List[List[int]]:
 
         # Set results to block
         for j in range(len(block)):      # TODO: is access by index faster than iteration?
-            block[j][i] = col_vector[j]
+            block[j][i] = int(col_vector[j])
 
+    # Perform DCT over every row
     for index, row in enumerate(block):
-        block[index] = inverse_transform(row)
+        block[index] = [int(x) for x in inverse_transform(row)]
 
     # Reverse the centering on zero that was run before forward DCT.
     # For every row and every member of the row.

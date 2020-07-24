@@ -273,25 +273,34 @@ class IMGFile(CmnMixin):
         # Encode Y, Cb, Cr with Huffman
         # Write Huffman tree to file
         # Write encoded data to file
-        pass
+        self.vec = one_vec
 
-    def decode(self):
+    def decode(self, filename=None):
+        # self.read_file(filename)
+
+        vec = self.vec
+
+        # Read header to get width, height
+        # Read Huffman tree and recreate it
+        layers = self.vector_to_layers(vec)
+
+        return layers
+
+    def read_file(self, filename):
+        """
+        Read the entire IMG file
+        """
         with open(filename, "rb") as f:
             self._signature: str = f.read(BYTE2)
             self._width: int = self.unpack(f.read(BYTE4), unpack_type=UINT)
             self._height: int = self.unpack(f.read(BYTE4), unpack_type= UINT)
             self._block_size: int = self.unpack(f.read(BYTE4), unpack_type=UINT)
 
-        # Read header to get width, height
-        # Read Huffman tree and recreate it
-        layers = self.vector_to_layers(layers)
-
     def vector_to_layers(self, vector: List[int]) -> List[List[List[int]]]:
         """
         Used for decompression and reading form disk.
         """
         v_len = len(vector)
-        log.debug(v_len)
 
         # Extract all layers as vectors
         layer_1_vector = vector[:int(v_len/3)]
@@ -299,23 +308,41 @@ class IMGFile(CmnMixin):
         layer_3_vector = vector[int(v_len/3*2):]
 
         # Separate rows
-        layer_1 = self.separate_rows(layer_1_vector)
-        layer_2 = self.separate_rows(layer_2_vector)
-        layer_3 = self.separate_rows(layer_3_vector)
-
+        layer_1 = self.subdivide_layer(layer_1_vector)
+        layer_2 = self.subdivide_layer(layer_2_vector)
+        layer_3 = self.subdivide_layer(layer_3_vector)
 
         layers = [layer_1, layer_2, layer_3]
 
         return layers
 
-    def separate_rows(self, vector: List[int]) -> List[List[int]]:
+    def subdivide_layer(self, vector: List[int]) -> List[List[int]]:
         """
         Separate the rows of a one-dimensional vector layer.
         This is used for decompression.
         """
-        count = 0
+        layer = []
+        row = []
         for i in vector:
-            pass
+            row.append(i)
+            # if len(row) == self._width * self._block_size:
+            if len(row) == self._block_size:
+                layer.append(row)
+                row = []
+
+        return layer
+
+    def subdivide_row(self, vector: List[int]) -> List[List[int]]:
+        row = []
+        block = []
+
+        for i in vector:
+            block.append(i)
+            if len(block) == self._block_size:
+                row.append(block)
+                block = []
+
+        return row
 
     #############################
     #                           #
@@ -332,7 +359,6 @@ class IMGFile(CmnMixin):
         for layer in layers:
             for row in layer:
                 for block in row:
-                    for item in block:
-                        vector.append(item)
+                    vector.append(block)
         return vector
 

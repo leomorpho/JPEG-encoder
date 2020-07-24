@@ -27,18 +27,16 @@ test_layers_to_vector_cases = [
         name="Nominal",
         A=[
             [ # Layer 1
-                [[123, 123], [123, 123]], # Rows of blocks
-                [[123, 143], [123, 123]],
-                [[123, 143], [123, 123]]
+                [123, 123], [123, 123],
             ],
             [ # Layer 2
-                [[123, 123], [123, 123]], # Rows of blocks
-                [[123, 143], [123, 123]],
-                [[123, 143], [123, 123]]
+                [123, 123], [123, 123],
+            ],
+            [ # Layer 3
+                [123, 123], [123, 123],
             ]
         ],
-        B=[123, 123, 123, 123, 123, 143, 123, 123, 123, 143, 123, 123,
-            123, 123, 123, 123, 123, 143, 123, 123, 123, 143, 123, 123]
+        B=[123, 123, 123, 123, 123, 123, 123, 123, 123, 123, 123, 123]
     )
 ]
 
@@ -61,6 +59,9 @@ def test_vector_to_layers(case):
     log.debug("Input: " + str(case.B))
 
     im = IMGFile()
+    im._width = 2
+    im._height = 2
+    im._block_size = 2
     result = im.vector_to_layers(case.B)
 
     log.debug("Result: " + str(result))
