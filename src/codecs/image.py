@@ -232,9 +232,9 @@ class IMGFile:
         self._Cb = []
         self._Cr = []
 
-        self._width: int = self.unpack(f.read(BYTE4), L_ENDIAN, UINT)
-        self._height: int = self.unpack(f.read(BYTE4), L_ENDIAN, SINT)
-        self._data_size: int = self.unpack(f.read(BYTE4), L_ENDIAN, UINT)
+        self._width: int = None
+        self._height: int = None
+        self._data_size: int = None
 
     def encode(self, layers: List[List[int]]):
         """
@@ -244,7 +244,7 @@ class IMGFile:
             [[123, 122, ..., 124], ..., [231, 123, ..., 125]]
         """
         # Make one vector out of all values
-        one_vec = []
+        one_vec = self.layers_to_vector(layers)
 
         # Get probability distribution of all 3 vectors: Y, Cb, Cr
         # Create Huffman tree
@@ -256,4 +256,25 @@ class IMGFile:
     def decode(self):
         # Read header to get width, height
         # Read Huffman tree and recreate it
-        pass
+        layers = self.vector_to_layers(layers)
+
+    #############################
+    #                           #
+    # Static Methods            #
+    #                           #
+    #############################
+    @staticmethod
+    def layers_to_vector(layers):
+        """
+        Used for compression and writing to disk.
+        """
+        vector = []
+        return vector
+
+    @staticmethod
+    def vector_to_layers(layers):
+        """
+        Used for decompression and reading form disk.
+        """
+        layers = []
+        return layers
