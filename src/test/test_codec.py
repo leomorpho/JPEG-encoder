@@ -5,43 +5,63 @@ from src.codecs.image import IMGFile
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
 
+
 class InputOutputCase():
     """Represents a test case with input_val and expected expected_output"""
 
-    def __init__(self, name, input_val, expected_output):
+    def __init__(self, name, A, B):
         self.name = name
-        self.input_val = input_val
-        self.expected_output = expected_output
+        self.A = A
+        self.B = B
 
 #########################################
 #                                       #
-# JPEG encoder-decoder                  #
+# Convert btw layers and vectors        #
 #                                       #
 #########################################
 
 
 # 3 layers of vectors for Y, Cb, Cr
-test_encode_cases = [
+test_layers_to_vector_cases = [
     InputOutputCase(
         name="Nominal",
-        input_val=[
-            [[123, 123], [123, 123]],
-            [[123, 143], [123, 123]],
-            [[123, 143], [123, 123]],
+        A=[
+            [ # Layer 1
+                [[123, 123], [123, 123]], # Rows of blocks
+                [[123, 143], [123, 123]],
+                [[123, 143], [123, 123]]
+            ],
+            [ # Layer 2
+                [[123, 123], [123, 123]], # Rows of blocks
+                [[123, 143], [123, 123]],
+                [[123, 143], [123, 123]]
+            ]
         ],
-        expected_output=[
-        ]
+        B=[123, 123, 123, 123, 123, 143, 123, 123, 123, 143, 123, 123,
+            123, 123, 123, 123, 123, 143, 123, 123, 123, 143, 123, 123]
     )
 ]
 
 
-@pytest.mark.parametrize("case", test_encode_cases)
-def test_encode(case):
+@pytest.mark.parametrize("case", test_layers_to_vector_cases)
+def test_layers_to_vector(case):
     log.info("Case: " + case.name)
-    log.debug("Input: " + str(case.input_val))
+    log.debug("Input: " + str(case.A))
 
     im = IMGFile()
-    result = im.encode(case.input_val)
+    result = im.layers_to_vector(case.A)
 
     log.debug("Result: " + str(result))
-    assert(result == case.expected_output)
+    assert(result == case.B)
+
+
+@pytest.mark.parametrize("case", test_layers_to_vector_cases)
+def test_vector_to_layers(case):
+    log.info("Case: " + case.name)
+    log.debug("Input: " + str(case.B))
+
+    im = IMGFile()
+    result = im.vector_to_layers(case.B)
+
+    log.debug("Result: " + str(result))
+    assert(result == case.A)

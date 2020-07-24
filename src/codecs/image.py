@@ -1,6 +1,10 @@
 from typing import IO, Dict, List
 import struct
 import subprocess
+import logging
+
+log = logging.getLogger()
+log.setLevel(logging.DEBUG)
 
 L_ENDIAN = '< '  # little endian
 BYTE1 = 1       # 1 byte
@@ -15,11 +19,14 @@ SINT = "i"      # signed int        (4 byte)
 PATH_IMAGES = "./testdata/Proj1_Q3_Sample_Inputs/"
 
 
-class BmpCmnMixin:
+class CmnMixin:
     """Mixin that provides common functionality for Bmp files
     """
 
-    def unpack(self, byte_data: bytes, endianness: str, unpack_type: str):
+    def unpack(self,
+               byte_data: bytes,
+               endianness: str = None,
+               unpack_type: str = None):
         """
         Unpacks bytes
         """
@@ -37,7 +44,7 @@ class BmpCmnMixin:
         return formatted_repr
 
 
-class BmpFileHeader(BmpCmnMixin):
+class BmpFileHeader(CmnMixin):
     def __init__(self, f: IO):
         """
         :param f: file to read
@@ -59,7 +66,7 @@ class BmpFileHeader(BmpCmnMixin):
         return self._data_offset
 
 
-class BmpImageHeader(BmpCmnMixin):
+class BmpImageHeader(CmnMixin):
     def __init__(self, f: IO):
         """
         :param f: file to read
@@ -111,7 +118,7 @@ class BmpImageHeader(BmpCmnMixin):
         return self._height
 
 
-class BmpColorTable(BmpCmnMixin):
+class BmpColorTable(CmnMixin):
     def __init__(self, f: IO):
         """
         :attr _red: red intensity
@@ -126,7 +133,7 @@ class BmpColorTable(BmpCmnMixin):
         pass
 
 
-class BmpPixelData(BmpCmnMixin):
+class BmpPixelData(CmnMixin):
     def __init__(self,
                  f: IO,
                  width: int,
@@ -173,7 +180,7 @@ class BmpPixelData(BmpCmnMixin):
             + " x " + str(len(self.data[0][0]))
 
 
-class BmpFile(BmpCmnMixin):
+class BmpFile(CmnMixin):
     def __init__(self, filename):
         """
         :param
@@ -219,21 +226,31 @@ class BmpFile(BmpCmnMixin):
         """Get height of image"""
         return self._image_header.height
 
-class IMGFile:
+
+class IMGFile(CmnMixin):
     """
     Format of compressed BMP file using JPEG-like encoder
     """
+
     def __init__(self):
         """
-        :param width: the width of the image in number of block
-        :param height: the length of the image in number of block
+        :attr signature: type of file
+        :type signature: 2 byte
+        :attr width: the width of the image in number of block
+        :type width: 4 byte
+        :attr height: the length of the image in number of block
+        :type height: 4 byte
+        :attr block_size: the number of values in a row or column of the blocks used
+        :type block_size: 4 byte
         """
         self._Y = []
         self._Cb = []
         self._Cr = []
 
+        self._signature: str = None
         self._width: int = None
         self._height: int = None
+        self._block_size: int = None
         self._data_size: int = None
 
     def encode(self, layers: List[List[int]]):
@@ -243,6 +260,11 @@ class IMGFile:
             distinctions between rows. Example of layers[0]:
             [[123, 122, ..., 124], ..., [231, 123, ..., 125]]
         """
+        # Save dimensions for later decompression
+        self._width = len(layers[0])
+        self._height = len(layers)
+        self._block_size = len(layers[0][0])
+
         # Make one vector out of all values
         one_vec = self.layers_to_vector(layers)
 
@@ -254,9 +276,46 @@ class IMGFile:
         pass
 
     def decode(self):
+        with open(filename, "rb") as f:
+            self._signature: str = f.read(BYTE2)
+            self._width: int = self.unpack(f.read(BYTE4), unpack_type=UINT)
+            self._height: int = self.unpack(f.read(BYTE4), unpack_type= UINT)
+            self._block_size: int = self.unpack(f.read(BYTE4), unpack_type=UINT)
+
         # Read header to get width, height
         # Read Huffman tree and recreate it
         layers = self.vector_to_layers(layers)
+
+    def vector_to_layers(self, vector: List[int]) -> List[List[List[int]]]:
+        """
+        Used for decompression and reading form disk.
+        """
+        v_len = len(vector)
+        log.debug(v_len)
+
+        # Extract all layers as vectors
+        layer_1_vector = vector[:int(v_len/3)]
+        layer_2_vector = vector[int(v_len/3):int(v_len/3*2)]
+        layer_3_vector = vector[int(v_len/3*2):]
+
+        # Separate rows
+        layer_1 = self.separate_rows(layer_1_vector)
+        layer_2 = self.separate_rows(layer_2_vector)
+        layer_3 = self.separate_rows(layer_3_vector)
+
+
+        layers = [layer_1, layer_2, layer_3]
+
+        return layers
+
+    def separate_rows(self, vector: List[int]) -> List[List[int]]:
+        """
+        Separate the rows of a one-dimensional vector layer.
+        This is used for decompression.
+        """
+        count = 0
+        for i in vector:
+            pass
 
     #############################
     #                           #
@@ -264,17 +323,16 @@ class IMGFile:
     #                           #
     #############################
     @staticmethod
-    def layers_to_vector(layers):
+    def layers_to_vector(layers: List[List[List[int]]]) -> List[int]:
         """
         Used for compression and writing to disk.
         """
         vector = []
+
+        for layer in layers:
+            for row in layer:
+                for block in row:
+                    for item in block:
+                        vector.append(item)
         return vector
 
-    @staticmethod
-    def vector_to_layers(layers):
-        """
-        Used for decompression and reading form disk.
-        """
-        layers = []
-        return layers

@@ -40,26 +40,38 @@ def JPEG(image: List[List[List[int]]], compression_lvl=90) -> List[List[List[int
         blocked_layer_zigzagged = []
 
         for i_row, row in enumerate(blocked_layer):
+            blocked_row_vector = []
             for i_block, block in enumerate(row):
                 # Encode
                 block = dct_forward(block)
                 block = quantize(block, compression_lvl)
                 vector = zigzag(block)
-                blocked_layer_zigzagged.append(vector)
+                blocked_row_vector.append(vector.copy())
 
-                # # Decode
-                # block = un_zigzag(vector)
-                # block = dequantize(block, compression_lvl)
-                # block = dct_inverse(block)
+                # Decode
+                block = un_zigzag(vector)
+                block = dequantize(block, compression_lvl)
+                block = dct_inverse(block)
 
                 # Update block in row
-                # row[i_block] = block
+                row[i_block] = block
 
-            # blocked_layer[i_row] = row
-        # layers[i_layer] = block_join_layer(blocked_layer)
+            blocked_layer[i_row] = row
+            blocked_layer_zigzagged.append(blocked_row_vector)
+        layers[i_layer] = block_join_layer(blocked_layer)
         layers_zigzaged.append(blocked_layer_zigzagged)
 
+    im = IMGFile()
+    im.encode(layers_zigzaged)
+    im.write(OUTPUT_FILE)
+
+    im.read(OUTPUT_FILE)
+    decoded_image = im.decode()
+
     image: List[List[List[int]]] = join_image_layers(layers)
+
+    # The two should be equal. When they are, only return the decoded image.
+    assert(image == decoded_image)
 
     # img_file = IMGFile.encode(layers_zigzaged)
     # img_file.write(OUTPUT_FILE)
