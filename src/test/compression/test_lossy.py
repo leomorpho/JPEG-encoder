@@ -40,6 +40,7 @@ test_jpeg_cases = [
 ]
 
 
+@pytest.mark.skip(reason="no way of currently testing this")
 @pytest.mark.parametrize("case", test_jpeg_cases)
 def test_jpeg(case):
     log.info("Case: " + case.name)

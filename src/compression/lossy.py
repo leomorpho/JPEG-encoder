@@ -3,7 +3,7 @@ import logging
 from src.compression.dct import dct_forward, dct_inverse
 from src.compression.quantization import quantize, dequantize
 from src.compression.zigzag import zigzag, un_zigzag
-from src.codecs.image import BmpFile
+from src.codecs.image import BmpFile, IMGFile
 from src.compression.lossless import HuffmanEncoder
 
 log = logging.getLogger()
@@ -28,11 +28,16 @@ def JPEG(image: List[List[List[int]]], compression_lvl=90) -> List[List[List[int
     # Separate into Y, Cb, Cr layers
     layers: List[List[List[int]]] = separate_image_layers(image)
 
+    # Hold zigzaged layers which are ready to be Huffman encoded and
+    # persisted to disk.
+    layers_zigzaged = []
+
     layers_joined_blocks = []
 
     # Make new copy for JPEG version
     for i_layer, layer in enumerate(layers):
         blocked_layer = block_split_layer(layer)
+        blocked_layer_zigzagged = []
 
         for i_row, row in enumerate(blocked_layer):
             for i_block, block in enumerate(row):
@@ -40,19 +45,24 @@ def JPEG(image: List[List[List[int]]], compression_lvl=90) -> List[List[List[int
                 block = dct_forward(block)
                 block = quantize(block, compression_lvl)
                 vector = zigzag(block)
+                blocked_layer_zigzagged.append(vector)
 
-                # Decode
-                block = un_zigzag(vector)
-                block = dequantize(block, compression_lvl)
-                block = dct_inverse(block)
+                # # Decode
+                # block = un_zigzag(vector)
+                # block = dequantize(block, compression_lvl)
+                # block = dct_inverse(block)
 
                 # Update block in row
-                row[i_block] = block
+                # row[i_block] = block
 
-            blocked_layer[i_row] = row
-        layers[i_layer] = block_join_layer(blocked_layer)
+            # blocked_layer[i_row] = row
+        # layers[i_layer] = block_join_layer(blocked_layer)
+        layers_zigzaged.append(blocked_layer_zigzagged)
 
     image: List[List[List[int]]] = join_image_layers(layers)
+
+    # img_file = IMGFile.encode(layers_zigzaged)
+    # img_file.write(OUTPUT_FILE)
 
     # # Save file
     # with open(OUTPUT_FILE, "w+") as fp:
@@ -232,7 +242,6 @@ def block_join_layer(blocked_layer: List[List[int]]):
         log.debug(joined_block_rows)
 
         horizontally_merged_blocks.append(joined_block_rows)
-
 
     # (2) Merge all block rows vertically
     # Structure of blocked_layer:

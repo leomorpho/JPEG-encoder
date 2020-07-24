@@ -36,13 +36,12 @@ test_dct = [
     )
 ]
 
-
 @pytest.mark.parametrize("case", test_dct)
 def test_dct(case):
     log.info("Case: " + case.name)
     log.debug("Input: " + str(case.input_val))
 
-    block = dct(case.input_val)
+    block = dct_forward(case.input_val)
 
     log.debug("Result: " + str(block))
     for i in range(8):
@@ -78,7 +77,7 @@ def test_dct(case):
     log.info("Case: " + case.name)
     log.debug("Input: " + str(case.input_val))
 
-    block = dct(case.input_val, inverse=True)
+    block = dct_inverse(case.input_val)
 
     log.debug("Result: " + str(block))
     for i in range(8):

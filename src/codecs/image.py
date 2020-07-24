@@ -223,4 +223,37 @@ class IMGFile:
     """
     Format of compressed BMP file using JPEG-like encoder
     """
-    pass
+    def __init__(self):
+        """
+        :param width: the width of the image in number of block
+        :param height: the length of the image in number of block
+        """
+        self._Y = []
+        self._Cb = []
+        self._Cr = []
+
+        self._width: int = self.unpack(f.read(BYTE4), L_ENDIAN, UINT)
+        self._height: int = self.unpack(f.read(BYTE4), L_ENDIAN, SINT)
+        self._data_size: int = self.unpack(f.read(BYTE4), L_ENDIAN, UINT)
+
+    def encode(self, layers: List[List[int]]):
+        """
+        :param layers: list of vectors of blocks. Each vector
+            represents one block of the blocked image. There are no more
+            distinctions between rows. Example of layers[0]:
+            [[123, 122, ..., 124], ..., [231, 123, ..., 125]]
+        """
+        # Make one vector out of all values
+        one_vec = []
+
+        # Get probability distribution of all 3 vectors: Y, Cb, Cr
+        # Create Huffman tree
+        # Encode Y, Cb, Cr with Huffman
+        # Write Huffman tree to file
+        # Write encoded data to file
+        pass
+
+    def decode(self):
+        # Read header to get width, height
+        # Read Huffman tree and recreate it
+        pass
