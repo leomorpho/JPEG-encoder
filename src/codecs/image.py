@@ -1,4 +1,4 @@
-from typing import IO, Dict, List
+from typing import IO, Dict, List, Any
 import struct
 import subprocess
 import logging
@@ -31,8 +31,13 @@ class CmnMixin:
         """
         Unpacks bytes
         """
-        flags = endianness + " " + unpack_type
-        return struct.unpack(flags, byte_data)[0]
+        flags = ""
+        if endianness:
+            flags += (" " + endianness)
+        if unpack_type:
+            flags += (" " + unpack_type)
+
+        return struct.unpack(flags.strip(), byte_data)[0]
 
     def __repr__(self):
         """Pretty prints all attributes of object
@@ -280,7 +285,6 @@ class IMGFile(CmnMixin):
         # Write encoded data to file
 
     def decode(self, filename=None):
-        # self.read_file(filename)
         vec = self.vec
         # Read header to get width, height
         # TODO: read from class for now
@@ -289,21 +293,32 @@ class IMGFile(CmnMixin):
         # TODO: read from huffman class for now
         vec = self.huffman.decode(vec)
 
-
         # Reassemble layers from one-dimensional vector
         layers = self.vector_to_layers(vec)
 
         return layers
 
-    def read_file(self, filename):
+    def write(self, filename):
+        """
+        Write the encoded data to file alongside the huffman tree.
+        """
+        with open(filename, "wb") as f:
+            f.write(struct.pack(f'>{UINT}', self._width))
+            f.write(struct.pack(f'>{UINT}', self._height))
+            f.write(struct.pack(f'>{UINT}', self._block_size))
+
+    def read(self, filename):
         """
         Read the entire IMG file
         """
         with open(filename, "rb") as f:
-            self._signature: str = f.read(BYTE2)
             self._width: int = self.unpack(f.read(BYTE4), unpack_type=UINT)
             self._height: int = self.unpack(f.read(BYTE4), unpack_type= UINT)
             self._block_size: int = self.unpack(f.read(BYTE4), unpack_type=UINT)
+
+            print(self._width)
+            print(self._height)
+            print(self._block_size)
 
     def vector_to_layers(self, vector: List[int]) -> List[List[List[int]]]:
         """

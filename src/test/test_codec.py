@@ -1,6 +1,7 @@
 import pytest
 import logging
 from src.codecs.image import IMGFile
+import os
 
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
@@ -66,3 +67,36 @@ def test_vector_to_layers(case):
 
     log.debug("Result: " + str(result))
     assert(result == case.A)
+
+
+#########################################
+#                                       #
+# Read/write                            #
+#                                       #
+#########################################
+
+@pytest.fixture
+def test_file():
+    filename = "test.img"
+    yield filename
+    os.remove(filename)
+
+
+def test_read_write(test_file):
+    im = IMGFile()
+    width = 80
+    height = 64
+    block_size = 8
+    filename = test_file
+
+    im._width = width
+    im._height = height
+    im._block_size = block_size
+
+    im.write(filename)
+    im.read(filename)
+
+    assert(im._width == width)
+    assert(im._height== height)
+    assert(im._block_size == block_size)
+

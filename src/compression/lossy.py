@@ -63,9 +63,9 @@ def JPEG(original_image: List[List[List[int]]], compression_lvl=90) -> List[List
 
     im = IMGFile()
     im.encode(layers_zigzagged)
-    # im.write(OUTPUT_FILE)
+    im.write(OUTPUT_FILE)
 
-    # im.read(OUTPUT_FILE)
+    im.read(OUTPUT_FILE)
     decoded_layers_zigzagged = im.decode()
 
     assert(layers_zigzagged == decoded_layers_zigzagged)
