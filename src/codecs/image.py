@@ -2,6 +2,7 @@ from typing import IO, Dict, List
 import struct
 import subprocess
 import logging
+from src.compression.lossless import HuffmanEncoder
 
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
@@ -253,6 +254,8 @@ class IMGFile(CmnMixin):
         self._block_size: int = None
         self._data_size: int = None
 
+        self.huffman = HuffmanEncoder()
+
     def encode(self, layers: List[List[int]]):
         """
         :param layers: list of vectors of blocks. Each vector
@@ -268,20 +271,25 @@ class IMGFile(CmnMixin):
         # Make one vector out of all values
         one_vec = self.layers_to_vector(layers)
 
-        # Get probability distribution of all 3 vectors: Y, Cb, Cr
-        # Create Huffman tree
+        # Huffman encode
+        self.vec = self.huffman.encode(one_vec)
+
         # Encode Y, Cb, Cr with Huffman
         # Write Huffman tree to file
         # Write encoded data to file
-        self.vec = one_vec
 
     def decode(self, filename=None):
         # self.read_file(filename)
-
         vec = self.vec
-
         # Read header to get width, height
+        # TODO: read from class for now
+
         # Read Huffman tree and recreate it
+        # TODO: read from huffman class for now
+        vec = self.huffman.decode(vec)
+
+
+        # Reassemble layers from one-dimensional vector
         layers = self.vector_to_layers(vec)
 
         return layers
@@ -325,14 +333,17 @@ class IMGFile(CmnMixin):
         row = []
         for i in vector:
             row.append(i)
-            # if len(row) == self._width * self._block_size:
-            if len(row) == self._block_size:
-                layer.append(row)
+            if len(row) == self._width * self._block_size:
+                layer.append(self.subdivide_row(row))
                 row = []
 
         return layer
 
     def subdivide_row(self, vector: List[int]) -> List[List[int]]:
+        """
+        Separate the blocks of a one-dimensional row vector layer.
+        This is used for decompression.
+        """
         row = []
         block = []
 
@@ -359,6 +370,7 @@ class IMGFile(CmnMixin):
         for layer in layers:
             for row in layer:
                 for block in row:
-                    vector.append(block)
+                    for item in block:
+                        vector.append(item)
         return vector
 

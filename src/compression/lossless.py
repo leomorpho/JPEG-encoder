@@ -73,7 +73,7 @@ class HuffmanEncoder:
         return round(len_unencoded / len_encoded, 4)
 
     def encode(self, data):
-        # Create probability distribution for the WAV samples
+        # Create probability distribution for the samples
         prob_distr = self.create_prob_distribution(data)
 
         # Create starting leaves from ordered probability distribution
@@ -95,10 +95,18 @@ class HuffmanEncoder:
         self.root_node = self.assign_codes(self.root_node)
 
         # Create dict of sample to code
-        sample_to_code_dict = self.sample_to_code_dict(leaves)
+        # TODO: make sample_to_code_dict a local var once it is read from file in decoding
+        self.sample_to_code_dict = self.create_sample_to_code_dict(leaves)
 
         # Encode samples to codes
-        return self.encode_to_list(data, sample_to_code_dict)
+        return self.convert_samples_to_codes(data, self.sample_to_code_dict)
+
+    def decode(self, data):
+        # TODO: create dictionnary by reading huffman tree from file
+        code_to_sample_dict = {v: k for k, v in self.sample_to_code_dict.items()}
+        samples = self.convert_codes_to_samples(data, code_to_sample_dict)
+
+        return samples
 
     @classmethod
     def create_tree(cls, nodes: List[HuffmanNode]) -> HuffmanNode:
@@ -148,7 +156,7 @@ class HuffmanEncoder:
             node.children[1] = cls.assign_code_recurse(node.children[1])
 
     @staticmethod
-    def sample_to_code_dict(leaves: List[HuffmanNode]):
+    def create_sample_to_code_dict(leaves: List[HuffmanNode]):
         """Create a dictionary of sample value to code. This is used to encode
         a string of data.
         """
@@ -158,14 +166,21 @@ class HuffmanEncoder:
         return newDict
 
     @staticmethod
-    def encode_to_list(samples: List[int], sample_to_code: Dict[int, int]) -> List[int]:
-        """Encode a list of samples using the Huffman dictionary
+    def convert_samples_to_codes(samples: List[int],
+                         sample_to_code_dict: Dict[int, int]) -> List[int]:
+        """Encode a list of samples using a Huffman dictionary
         """
         result = []
         for sample in samples:
-            result.append(sample_to_code[sample])
+            result.append(sample_to_code_dict[sample])
 
         return result
+
+    @staticmethod
+    def convert_codes_to_samples(codes: List[int],
+                         code_to_sample_dict: Dict[int, int]) -> List[int]:
+        """Decode a list of codes using a Huffman dictionnary"""
+        return
 
     @staticmethod
     def create_prob_distribution(samples: List[Any]) -> Dict[int, float]:
@@ -185,6 +200,7 @@ class HuffmanEncoder:
 
         return prob_distribution
 
+
 class LZWEncoder:
     def __init__(self, wav_file):
         self.wav_file = wav_file
@@ -195,7 +211,6 @@ class LZWEncoder:
         """Wrapper function for WAV files
         """
         self._encoded_samples = self.encode(self.wav_file.samples)
-
 
     def encode(self, data):
         encoded_sentence = []
@@ -234,7 +249,6 @@ class LZWEncoder:
 
         encoded_sentence.append(str(dictionary[str(s)]))
         return encoded_sentence
-
 
     def compression_ratio(self, encoded_samples=None):
         # Convert both lists to string. The unencoded string must be converted to binary.
