@@ -165,6 +165,7 @@ class HuffmanEncoder:
             newDict[leaf.sample_value] = leaf.code
         return newDict
 
+    # TODO: convert samples to code and vice versa can be one function
     @staticmethod
     def convert_samples_to_codes(samples: List[int],
                          sample_to_code_dict: Dict[int, int]) -> List[int]:
@@ -180,7 +181,11 @@ class HuffmanEncoder:
     def convert_codes_to_samples(codes: List[int],
                          code_to_sample_dict: Dict[int, int]) -> List[int]:
         """Decode a list of codes using a Huffman dictionnary"""
-        return
+        result = []
+        for code in codes:
+            result.append(code_to_sample_dict[code])
+
+        return result
 
     @staticmethod
     def create_prob_distribution(samples: List[Any]) -> Dict[int, float]:

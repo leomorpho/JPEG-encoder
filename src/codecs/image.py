@@ -264,12 +264,13 @@ class IMGFile(CmnMixin):
             [[123, 122, ..., 124], ..., [231, 123, ..., 125]]
         """
         # Save dimensions for later decompression
-        self._width = len(layers[0])
-        self._height = len(layers)
-        self._block_size = len(layers[0][0])
+        self._width = len(layers[0][0])
+        self._height = len(layers[0])
+        self._block_size = len(layers[0][0][0])
 
         # Make one vector out of all values
         one_vec = self.layers_to_vector(layers)
+        self.vec = one_vec
 
         # Huffman encode
         self.vec = self.huffman.encode(one_vec)

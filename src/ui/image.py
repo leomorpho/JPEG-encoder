@@ -21,9 +21,6 @@ class Image(QWidget):
 
         if compression:
             self.matrix = JPEG(self.matrix, compression)
-            print("THE MATRIX")
-            print(self.matrix[0])
-            print()
 
         self.setMinimumSize(int(self.width), int(self.height))
 
