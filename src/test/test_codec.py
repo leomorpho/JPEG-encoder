@@ -87,11 +87,15 @@ def test_read_write(test_file):
     width = 80
     height = 64
     block_size = 8
+    tree_byte_length = 14
+    data_byte_length = 28
     filename = test_file
 
     im._width = width
     im._height = height
     im._block_size = block_size
+    im._tree_byte_length = tree_byte_length
+    im._data_byte_length = data_byte_length
 
     im.write(filename)
     im.read(filename)
@@ -99,4 +103,6 @@ def test_read_write(test_file):
     assert(im._width == width)
     assert(im._height== height)
     assert(im._block_size == block_size)
+    assert(im._tree_byte_length == tree_byte_length)
+    assert(im._data_byte_length == data_byte_length)
 

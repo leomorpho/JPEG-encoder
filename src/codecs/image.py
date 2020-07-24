@@ -257,7 +257,8 @@ class IMGFile(CmnMixin):
         self._width: int = None
         self._height: int = None
         self._block_size: int = None
-        self._data_size: int = None
+        self._tree_byte_length: int = None
+        self._data_byte_length: int = None
 
         self.huffman = HuffmanEncoder()
 
@@ -279,6 +280,7 @@ class IMGFile(CmnMixin):
 
         # Huffman encode
         self.vec = self.huffman.encode(one_vec)
+        self._data_byte_length = len(self.vec)
 
         # Encode Y, Cb, Cr with Huffman
         # Write Huffman tree to file
@@ -303,9 +305,11 @@ class IMGFile(CmnMixin):
         Write the encoded data to file alongside the huffman tree.
         """
         with open(filename, "wb") as f:
-            f.write(struct.pack(f'>{UINT}', self._width))
-            f.write(struct.pack(f'>{UINT}', self._height))
-            f.write(struct.pack(f'>{UINT}', self._block_size))
+            f.write(struct.pack(f'{UINT}', self._width))
+            f.write(struct.pack(f'{UINT}', self._height))
+            f.write(struct.pack(f'{UINT}', self._block_size))
+            f.write(struct.pack(f'{UINT}', self._tree_byte_length))
+            f.write(struct.pack(f'{UINT}', self._data_byte_length))
 
     def read(self, filename):
         """
@@ -315,6 +319,8 @@ class IMGFile(CmnMixin):
             self._width: int = self.unpack(f.read(BYTE4), unpack_type=UINT)
             self._height: int = self.unpack(f.read(BYTE4), unpack_type= UINT)
             self._block_size: int = self.unpack(f.read(BYTE4), unpack_type=UINT)
+            self._tree_byte_length: int = self.unpack(f.read(BYTE4), unpack_type=UINT)
+            self._data_byte_length: int = self.unpack(f.read(BYTE4), unpack_type=UINT)
 
             print(self._width)
             print(self._height)
