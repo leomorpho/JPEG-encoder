@@ -72,7 +72,6 @@ def JPEG(original_image: List[List[List[int]]], compression_lvl=90) -> List[List
 
     image: List[List[List[int]]] = join_image_layers(layers)
 
-
     # img_file = IMGFile.encode(layers_zigzagged)
     # img_file.write(OUTPUT_FILE)
 

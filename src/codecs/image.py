@@ -242,12 +242,26 @@ class IMGFile(CmnMixin):
         """
         :attr signature: type of file
         :type signature: 2 byte
+
         :attr width: the width of the image in number of block
         :type width: 4 byte
+
         :attr height: the length of the image in number of block
         :type height: 4 byte
-        :attr block_size: the number of values in a row or column of the blocks used
+
+        :attr block_size: the number of values in a row or column of
+            the blocks used
         :type block_size: 4 byte
+
+        :attr tree_byte_length: the length in bytes of the Huffman tree
+        :type tree_byte_length; 4 byte
+
+        :attr main_data_byte_length: length in bytes of the main data chunk
+        :type main_data_byte_length: 4 byte
+
+        :attr tree_data: the Huffman tree data
+
+        :attr image_data: the main image data
         """
         self._Y = []
         self._Cb = []
@@ -258,7 +272,10 @@ class IMGFile(CmnMixin):
         self._height: int = None
         self._block_size: int = None
         self._tree_byte_length: int = None
-        self._data_byte_length: int = None
+        self._main_data_byte_length: int = None
+
+        self._tree_data: List[int] = None
+        self._image_data: List[int] = None
 
         self.huffman = HuffmanEncoder()
 
@@ -276,23 +293,30 @@ class IMGFile(CmnMixin):
 
         # Make one vector out of all values
         one_vec = self.layers_to_vector(layers)
-        self.vec = one_vec
+        self._encoded_main_data = one_vec
 
         # Huffman encode
-        self.vec = self.huffman.encode(one_vec)
-        self._data_byte_length = len(self.vec)
+        self._encoded_main_data = "".join(self.huffman.encode(one_vec))
+        # TODO: This division may introduce a bug, watch out for it. Some
+        # data may be clipped.
+        self._encoded_main_str_length = len(self._encoded_main_data)
+
+        # Get huffman tree as list of 0 and 1. A 1 is a leaf and is
+        # always followed by its associated value.
+        # self.tree = self.huffman.tree_to_list()
 
         # Encode Y, Cb, Cr with Huffman
         # Write Huffman tree to file
         # Write encoded data to file
 
     def decode(self, filename=None):
-        vec = self.vec
+        vec = self._encoded_main_data
         # Read header to get width, height
         # TODO: read from class for now
 
         # Read Huffman tree and recreate it
         # TODO: read from huffman class for now
+
         vec = self.huffman.decode(vec)
 
         # Reassemble layers from one-dimensional vector
@@ -300,16 +324,31 @@ class IMGFile(CmnMixin):
 
         return layers
 
+    def pad_main_data(self):
+        self._main_data_padding = 8 - len(self._encoded_main_data) % 8
+
+        for i in range(self._main_data_padding):
+            self._encoded_main_data += "0"
+
+
     def write(self, filename):
         """
         Write the encoded data to file alongside the huffman tree.
         """
+        self.pad_main_data()
+        encoded_main_data_bytes = self.str_to_byte_array(self._encoded_main_data)
+        self._main_data_num_bytes = len(encoded_main_data_bytes)
+        print(self._main_data_num_bytes)
+
         with open(filename, "wb") as f:
             f.write(struct.pack(f'{UINT}', self._width))
             f.write(struct.pack(f'{UINT}', self._height))
             f.write(struct.pack(f'{UINT}', self._block_size))
-            f.write(struct.pack(f'{UINT}', self._tree_byte_length))
-            f.write(struct.pack(f'{UINT}', self._data_byte_length))
+            f.write(struct.pack(f'{UINT}', self._main_data_padding))
+            f.write(struct.pack(f'{UINT}', self._main_data_num_bytes))
+
+            for byte in encoded_main_data_bytes:
+                f.write(struct.pack(f'{UCHAR}', byte))
 
     def read(self, filename):
         """
@@ -317,14 +356,24 @@ class IMGFile(CmnMixin):
         """
         with open(filename, "rb") as f:
             self._width: int = self.unpack(f.read(BYTE4), unpack_type=UINT)
-            self._height: int = self.unpack(f.read(BYTE4), unpack_type= UINT)
-            self._block_size: int = self.unpack(f.read(BYTE4), unpack_type=UINT)
-            self._tree_byte_length: int = self.unpack(f.read(BYTE4), unpack_type=UINT)
-            self._data_byte_length: int = self.unpack(f.read(BYTE4), unpack_type=UINT)
+            self._height: int = self.unpack(f.read(BYTE4), unpack_type=UINT)
+            self._block_size: int = self.unpack(
+                f.read(BYTE4), unpack_type=UINT)
+            self._main_data_padding: int = self.unpack(
+                f.read(BYTE4), unpack_type=UINT)
+            self._main_data_num_bytes: int = self.unpack(
+                f.read(BYTE4), unpack_type=UINT)
 
-            print(self._width)
-            print(self._height)
-            print(self._block_size)
+
+            data = ""
+            for i in range(self._main_data_num_bytes):
+                byte = self.unpack(f.read(BYTE1), unpack_type=UCHAR)
+                print(byte)
+                data += "{0:b}".format(byte)
+
+            print(data)
+            data = data[:-self._main_data_padding]
+            self._encoded_main_data = data
 
     def vector_to_layers(self, vector: List[int]) -> List[List[List[int]]]:
         """
@@ -395,4 +444,13 @@ class IMGFile(CmnMixin):
                     for item in block:
                         vector.append(item)
         return vector
+
+    @staticmethod
+    def str_to_byte_array(str_data):
+        byte_array = []
+
+        for i in range(0, len(str_data), 8):
+            byte_array.append(int(str_data[i:i+8], 2))
+
+        return byte_array
 

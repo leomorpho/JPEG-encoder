@@ -101,12 +101,29 @@ class HuffmanEncoder:
         # Encode samples to codes
         return self.convert_samples_to_codes(data, self.sample_to_code_dict)
 
-    def decode(self, data):
+    def decode(self, data, tree=None):
         # TODO: create dictionnary by reading huffman tree from file
-        code_to_sample_dict = {v: k for k, v in self.sample_to_code_dict.items()}
+        code_to_sample_dict = {v: k for k,
+                               v in self.sample_to_code_dict.items()}
         samples = self.convert_codes_to_samples(data, code_to_sample_dict)
 
         return samples
+
+    def tree_to_list():
+        """
+        Convert the Huffman tree to a list of 1 and 0. The 1s are leaves
+        and always have their associated data directly after.
+        """
+        # TODO
+        pass
+
+    def list_to_tree():
+        """
+        Convert the Huffman tree to a list of 1 and 0. The 1s are leaves
+        and always have their associated data directly after.
+        """
+        # TODO
+        pass
 
     @classmethod
     def create_tree(cls, nodes: List[HuffmanNode]) -> HuffmanNode:
@@ -168,7 +185,7 @@ class HuffmanEncoder:
     # TODO: convert samples to code and vice versa can be one function
     @staticmethod
     def convert_samples_to_codes(samples: List[int],
-                         sample_to_code_dict: Dict[int, int]) -> List[int]:
+                                 sample_to_code_dict: Dict[int, int]) -> List[int]:
         """Encode a list of samples using a Huffman dictionary
         """
         result = []
@@ -179,7 +196,7 @@ class HuffmanEncoder:
 
     @staticmethod
     def convert_codes_to_samples(codes: List[int],
-                         code_to_sample_dict: Dict[int, int]) -> List[int]:
+                                 code_to_sample_dict: Dict[int, int]) -> List[int]:
         """Decode a list of codes using a Huffman dictionnary"""
         result = []
         for code in codes:
