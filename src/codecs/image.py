@@ -323,10 +323,12 @@ class IMGFile(CmnMixin):
         # Read Huffman tree and recreate it
         # TODO: read from huffman class for now
 
-        encoded_str = self.huffman.decode(encoded_str)
+        decoded_str = self.huffman.decode(encoded_str)
 
         # Reassemble layers from one-dimensional vector
-        layers = self.vector_to_layers(encoded_str)
+        layers = self.vector_to_layers(decoded_str)
+
+        assert(self._encoded_main_data == encoded_str)
 
         return layers
 

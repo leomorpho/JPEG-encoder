@@ -23,7 +23,7 @@ class InputOutputCase():
 
 
 # 3 layers of vectors for Y, Cb, Cr
-test_layers_to_vector_cases = [
+full_image_test_cases = [
     InputOutputCase(
         name="Nominal",
         A=[
@@ -42,7 +42,7 @@ test_layers_to_vector_cases = [
 ]
 
 
-@pytest.mark.parametrize("case", test_layers_to_vector_cases)
+@pytest.mark.parametrize("case", full_image_test_cases)
 def test_layers_to_vector(case):
     log.info("Case: " + case.name)
     log.debug("Input: " + str(case.A))
@@ -54,7 +54,7 @@ def test_layers_to_vector(case):
     assert(result == case.B)
 
 
-@pytest.mark.parametrize("case", test_layers_to_vector_cases)
+@pytest.mark.parametrize("case", full_image_test_cases)
 def test_vector_to_layers(case):
     log.info("Case: " + case.name)
     log.debug("Input: " + str(case.B))
@@ -109,27 +109,15 @@ def test_read_write(test_file):
     assert(im._encoded_main_data == encoded_main_data)
     assert(im._main_data_padding == main_data_padding)
 
-#########################################
-#                                       #
-# Read/write                            #
-#                                       #
-#########################################
 
-test_byte_array_cases = [
-    InputOutputCase(
-        name="Nominal",
-        A="1111111100000000",
-        B=[255, 0]
-    )
-]
-
-@pytest.mark.parametrize("case", test_byte_array_cases)
-def test_byte_array(case):
-    log.info("Case: " + case.name)
-    log.debug("Input: " + str(case.A))
-
+@pytest.mark.skip(reason="no way of currently testing this")
+@pytest.mark.parametrize("case", full_image_test_cases)
+def test_read_write(case, test_file):
     im = IMGFile()
-    result = im.str_to_byte_array(case.A)
+    filename = test_file
 
-    log.debug("Result: " + str(result))
-    assert(result == case.B)
+    im.encode(case.A)
+    im.write(filename)
+    im.read(filename)
+    vector = im.decode()
+    result = im.vector_to_layers(vector)

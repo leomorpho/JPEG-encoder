@@ -102,6 +102,8 @@ class HuffmanEncoder:
         return self.convert_samples_to_codes(data, self.sample_to_code_dict)
 
     def decode(self, data: str):
+        if type(data) == list:
+            data = "".join(data)
         # TODO: create dictionnary by reading huffman tree from file
         decoded = []
         current_node = self.root_node
@@ -118,6 +120,7 @@ class HuffmanEncoder:
                 current_node = current_node.children[1]
             else:
                 raise Exception("code is not legal")
+        decoded.append(current_node.sample_value)
 
         return decoded
 
