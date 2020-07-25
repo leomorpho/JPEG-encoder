@@ -101,13 +101,25 @@ class HuffmanEncoder:
         # Encode samples to codes
         return self.convert_samples_to_codes(data, self.sample_to_code_dict)
 
-    def decode(self, data, tree=None):
+    def decode(self, data: str):
         # TODO: create dictionnary by reading huffman tree from file
-        code_to_sample_dict = {v: k for k,
-                               v in self.sample_to_code_dict.items()}
-        samples = self.convert_codes_to_samples(data, code_to_sample_dict)
+        decoded = []
+        current_node = self.root_node
 
-        return samples
+        # Walk the tree until a leaf is found. Add the corresponding value.
+        # Continue from root and next bit of encoded string.
+        for bit in data:
+            if current_node.children == None:
+                decoded.append(current_node.sample_value)
+                current_node = self.root_node
+            if bit == "0":
+                current_node = current_node.children[0]
+            elif bit == "1":
+                current_node = current_node.children[1]
+            else:
+                raise Exception("code is not legal")
+
+        return decoded
 
     def tree_to_list():
         """
@@ -141,8 +153,10 @@ class HuffmanEncoder:
             new_node.children = [child1, child2]
 
             nodes = nodes[2:]
-            nodes.insert(0, new_node)
+            nodes.append(new_node)
 
+        nodes.sort(key=lambda x: x.probability)
+        assert(nodes[0].probability == 1)
         return nodes[0]
 
     @classmethod
@@ -154,8 +168,8 @@ class HuffmanEncoder:
         root.children[1].code = "1"
 
         # Set codes for right and left branches of root
-        cls.assign_code_recurse(root.children[0])
-        cls.assign_code_recurse(root.children[1])
+        root.children[0] = cls.assign_code_recurse(root.children[0])
+        root.children[1] = cls.assign_code_recurse(root.children[1])
 
         return root
 
@@ -171,6 +185,8 @@ class HuffmanEncoder:
             # Set codes for right and left branches of node
             node.children[0] = cls.assign_code_recurse(node.children[0])
             node.children[1] = cls.assign_code_recurse(node.children[1])
+
+        return node
 
     @staticmethod
     def create_sample_to_code_dict(leaves: List[HuffmanNode]):
@@ -194,15 +210,15 @@ class HuffmanEncoder:
 
         return result
 
-    @staticmethod
-    def convert_codes_to_samples(codes: List[int],
-                                 code_to_sample_dict: Dict[int, int]) -> List[int]:
-        """Decode a list of codes using a Huffman dictionnary"""
-        result = []
-        for code in codes:
-            result.append(code_to_sample_dict[code])
+    # @staticmethod
+    # def convert_codes_to_samples(codes: List[int],
+    #                              code_to_sample_dict: Dict[int, int]) -> List[int]:
+    #     """Decode a list of codes using a Huffman dictionnary"""
+    #     result = []
+    #     for code in codes:
+    #         result.append(code_to_sample_dict[code])
 
-        return result
+    #     return result
 
     @staticmethod
     def create_prob_distribution(samples: List[Any]) -> Dict[int, float]:

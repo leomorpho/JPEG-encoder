@@ -310,21 +310,31 @@ class IMGFile(CmnMixin):
         # Write encoded data to file
 
     def decode(self, filename=None):
-        vec = self._encoded_main_data
+        """
+        Read file before decoding it
+        """
+        encoded_str = self._encoded_main_data
         # Read header to get width, height
+        if not self._main_data_num_bytes:
+            self.read(filename)
+
         # TODO: read from class for now
 
         # Read Huffman tree and recreate it
         # TODO: read from huffman class for now
 
-        vec = self.huffman.decode(vec)
+        encoded_str = self.huffman.decode(encoded_str)
 
         # Reassemble layers from one-dimensional vector
-        layers = self.vector_to_layers(vec)
+        layers = self.vector_to_layers(encoded_str)
 
         return layers
 
     def pad_main_data(self):
+        """
+        The data is stored as bytes. The last bits of the data probably will not
+        equal to 8 bits, and must therefore be padded to create a full byte.
+        """
         self._main_data_padding = 8 - len(self._encoded_main_data) % 8
 
         for i in range(self._main_data_padding):
@@ -337,15 +347,14 @@ class IMGFile(CmnMixin):
         """
         self.pad_main_data()
         encoded_main_data_bytes = self.str_to_byte_array(self._encoded_main_data)
-        self._main_data_num_bytes = len(encoded_main_data_bytes)
-        print(self._main_data_num_bytes)
+        main_data_num_bytes = len(encoded_main_data_bytes)
 
         with open(filename, "wb") as f:
             f.write(struct.pack(f'{UINT}', self._width))
             f.write(struct.pack(f'{UINT}', self._height))
             f.write(struct.pack(f'{UINT}', self._block_size))
             f.write(struct.pack(f'{UINT}', self._main_data_padding))
-            f.write(struct.pack(f'{UINT}', self._main_data_num_bytes))
+            f.write(struct.pack(f'{UINT}', main_data_num_bytes))
 
             for byte in encoded_main_data_bytes:
                 f.write(struct.pack(f'{UCHAR}', byte))
@@ -368,10 +377,8 @@ class IMGFile(CmnMixin):
             data = ""
             for i in range(self._main_data_num_bytes):
                 byte = self.unpack(f.read(BYTE1), unpack_type=UCHAR)
-                print(byte)
                 data += "{0:b}".format(byte)
 
-            print(data)
             data = data[:-self._main_data_padding]
             self._encoded_main_data = data
 
