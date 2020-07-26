@@ -167,12 +167,13 @@ class HuffmanEncoder:
         """Helper method to assign codes to every node of a Huffman tree.
         """
         # Only the root node has no code
-        root.children[0].code = "0"
-        root.children[1].code = "1"
+        if root.children:
+            root.children[0].code = "0"
+            root.children[1].code = "1"
 
-        # Set codes for right and left branches of root
-        root.children[0] = cls.assign_code_recurse(root.children[0])
-        root.children[1] = cls.assign_code_recurse(root.children[1])
+            # Set codes for right and left branches of root
+            root.children[0] = cls.assign_code_recurse(root.children[0])
+            root.children[1] = cls.assign_code_recurse(root.children[1])
 
         return root
 

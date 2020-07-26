@@ -68,6 +68,8 @@ def JPEG(original_image: List[List[List[int]]], compression_lvl=90) -> List[List
     im.read(OUTPUT_FILE)
     decoded_layers_zigzagged = im.decode()
 
+    print(decoded_layers_zigzagged)
+    print()
     print("layers_zigzagged[0][0][0]")
     print(layers_zigzagged[0][0][0])
     print()

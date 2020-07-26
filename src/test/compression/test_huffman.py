@@ -74,7 +74,7 @@ def test_decode_huffman(case):
     log.debug("Input: " + str(case))
 
     he = HuffmanEncoder()
-    encoded = he.encode(case)
+    encoded = "".join(he.encode(case))
     log.debug(encoded)
     decoded = he.decode(encoded)
 

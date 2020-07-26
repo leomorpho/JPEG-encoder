@@ -293,42 +293,27 @@ class IMGFile(CmnMixin):
 
         # Make one vector out of all values
         one_vec = self.layers_to_vector(layers)
-        self._encoded_main_data = one_vec
+        self._non_encoded_main_data = one_vec
 
         # Huffman encode
-        self._encoded_main_data = "".join(self.huffman.encode(one_vec))
-        # TODO: This division may introduce a bug, watch out for it. Some
-        # data may be clipped.
-        self._encoded_main_str_length = len(self._encoded_main_data)
-
-        # Get huffman tree as list of 0 and 1. A 1 is a leaf and is
-        # always followed by its associated value.
-        # self.tree = self.huffman.tree_to_list()
-
-        # Encode Y, Cb, Cr with Huffman
-        # Write Huffman tree to file
-        # Write encoded data to file
+        self._encoded_main_data = "".join(
+            self.huffman.encode(self._non_encoded_main_data))
 
     def decode(self, filename=None):
         """
         Read file before decoding it
         """
-        encoded_str = self._encoded_main_data
         # Read header to get width, height
-        if not self._main_data_num_bytes:
-            self.read(filename)
+        # if not hasattr(self, '_main_data_num_bytes'):
+        #     self.read(filename)
 
-        # TODO: read from class for now
-
-        # Read Huffman tree and recreate it
-        # TODO: read from huffman class for now
-
-        decoded_str = self.huffman.decode(encoded_str)
+        decoded_str = self.huffman.decode(self._encoded_main_data)
+        # assert(self._non_encoded_main_data == decoded_str)
 
         # Reassemble layers from one-dimensional vector
         layers = self.vector_to_layers(decoded_str)
 
-        assert(self._encoded_main_data == encoded_str)
+        # assert(self._encoded_main_data == encoded_str)
 
         return layers
 
@@ -342,13 +327,13 @@ class IMGFile(CmnMixin):
         for i in range(self._main_data_padding):
             self._encoded_main_data += "0"
 
-
     def write(self, filename):
         """
         Write the encoded data to file alongside the huffman tree.
         """
         self.pad_main_data()
-        encoded_main_data_bytes = self.str_to_byte_array(self._encoded_main_data)
+        encoded_main_data_bytes = self.str_to_byte_array(
+            self._encoded_main_data)
         main_data_num_bytes = len(encoded_main_data_bytes)
 
         with open(filename, "wb") as f:
@@ -374,7 +359,6 @@ class IMGFile(CmnMixin):
                 f.read(BYTE4), unpack_type=UINT)
             self._main_data_num_bytes: int = self.unpack(
                 f.read(BYTE4), unpack_type=UINT)
-
 
             data = ""
             for i in range(self._main_data_num_bytes):
@@ -462,4 +446,3 @@ class IMGFile(CmnMixin):
             byte_array.append(int(str_data[i:i+8], 2))
 
         return byte_array
-

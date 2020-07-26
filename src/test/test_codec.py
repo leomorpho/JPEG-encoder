@@ -79,10 +79,13 @@ def test_vector_to_layers(case):
 def test_file():
     filename = "test.img"
     yield filename
-    os.remove(filename)
+    try:
+        os.remove(filename)
+    except FileNotFoundError:
+        pass
 
 
-def test_read_write(test_file):
+def test_read_write_simple(test_file):
     im = IMGFile()
     width = 80
     height = 64
@@ -110,9 +113,52 @@ def test_read_write(test_file):
     assert(im._main_data_padding == main_data_padding)
 
 
-@pytest.mark.skip(reason="no way of currently testing this")
-@pytest.mark.parametrize("case", full_image_test_cases)
-def test_read_write(case, test_file):
+full_image_test_case = [
+    InputOutputCase(
+        name="Nominal",
+        A=[
+            [  # Layer 1
+                [
+                    [1295, 554, -94, 128, 167, 253, 90, 0, 43, 170, 152, -24, -24, 3, 21, 25, -11, -34, -47, -74, 62, 26, -32, -18, -22, -16, -20,
+                        11, 14, -1, 1, 4, 3, -10, -11, 13, 0, 0, 10, 2, 1, 0, -10, 0, 0, 0, 10, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, -10, 0, 0, 0],
+                    [1295, 554, -94, 128, 167, 253, 90, 0, 43, 170, 152, -24, -24, 3, 21, 25, -11, -34, -47, -74, 62, 26, -32, -18, -22, -16, -20,
+                        11, 14, -1, 1, 4, 3, -10, -11, 13, 0, 0, 10, 2, 1, 0, -10, 0, 0, 0, 10, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, -10, 0, 0, 0]
+                ]
+            ],
+            [  # Layer 2
+                [
+                    [1295, 554, -94, 128, 167, 253, 90, 0, 43, 170, 152, -24, -24, 3, 21, 25, -11, -34, -47, -74, 62, 26, -32, -18, -22, -16, -20,
+                        11, 14, -1, 1, 4, 3, -10, -11, 13, 0, 0, 10, 2, 1, 0, -10, 0, 0, 0, 10, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, -10, 0, 0, 0],
+                    [1295, 554, -94, 128, 167, 253, 90, 0, 43, 170, 152, -24, -24, 3, 21, 25, -11, -34, -47, -74, 62, 26, -32, -18, -22, -16, -20,
+                        11, 14, -1, 1, 4, 3, -10, -11, 13, 0, 0, 10, 2, 1, 0, -10, 0, 0, 0, 10, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, -10, 0, 0, 0]
+                ]
+            ],
+            [  # Layer 3
+                [
+                    [1295, 554, -94, 128, 167, 253, 90, 0, 43, 170, 152, -24, -24, 3, 21, 25, -11, -34, -47, -74, 62, 26, -32, -18, -22, -16, -20,
+                        11, 14, -1, 1, 4, 3, -10, -11, 13, 0, 0, 10, 2, 1, 0, -10, 0, 0, 0, 10, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, -10, 0, 0, 0],
+                    [1295, 554, -94, 128, 167, 253, 90, 0, 43, 170, 152, -24, -24, 3, 21, 25, -11, -34, -47, -74, 62, 26, -32, -18, -22, -16, -20,
+                        11, 14, -1, 1, 4, 3, -10, -11, 13, 0, 0, 10, 2, 1, 0, -10, 0, 0, 0, 10, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, -10, 0, 0, 0]
+                ]
+            ]
+        ],
+        B=""
+    )
+]
+
+
+@pytest.mark.parametrize("case", full_image_test_case)
+def test_encode_decode(case, test_file):
+    im = IMGFile()
+    filename = test_file
+
+    im.encode(case.A)
+    vector = im.decode()
+    assert(case.A == vector)
+
+
+@pytest.mark.parametrize("case", full_image_test_case)
+def test_read_write_full(case, test_file):
     im = IMGFile()
     filename = test_file
 
@@ -120,4 +166,23 @@ def test_read_write(case, test_file):
     im.write(filename)
     im.read(filename)
     vector = im.decode()
-    result = im.vector_to_layers(vector)
+    log.debug(im._encoded_main_data)
+    #assert(case.A == vector)
+
+    assert(im._width is not None)
+    assert(type(im._width) is int)
+
+    assert(im._height is not None)
+    assert(type(im._height) is int)
+
+    assert(im._block_size is not None)
+    assert(type(im._block_size) == int)
+
+    assert(im._main_data_padding is not None)
+    assert(type(im._main_data_padding) is int)
+
+    assert(im._main_data_num_bytes is not None)
+    assert(type(im._main_data_num_bytes) is int)
+
+    assert(im._encoded_main_data is not None)
+    assert(type(im._encoded_main_data) is str)
