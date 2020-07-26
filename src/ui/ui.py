@@ -158,6 +158,8 @@ class MainWindowQ2(QMainWindow):
 
             self.original_image_widget = Image(self.image_file_path)
             self.compressed_image_widget = Image(self.image_file_path, compression=90)
+            print(self.original_image_widget.bytes_size)
+            print(self.compressed_image_widget.bytes_size)
 
 
             hbox.addWidget(self.original_image_widget)

@@ -67,40 +67,11 @@ def JPEG(original_image: List[List[List[int]]], compression_lvl=90) -> List[List
     im.read(OUTPUT_FILE)
     decoded_layers_zigzagged = im.decode()
 
-    print(decoded_layers_zigzagged)
-    print()
-    print("layers_zigzagged[0][0][0]")
-    print(layers_zigzagged[0][0][0])
-    print()
-    print("decoded_layers_zigzagged[0][0][0]")
-    print(decoded_layers_zigzagged[0][0][0])
     assert(layers_zigzagged == decoded_layers_zigzagged)
 
     image: List[List[List[int]]] = join_image_layers(layers)
 
-    # img_file = IMGFile.encode(layers_zigzagged)
-    # img_file.write(OUTPUT_FILE)
-
-    # # Save file
-    # with open(OUTPUT_FILE, "w+") as fp:
-    #     fp.write()
-
-    # # Read file
-    # with open(OUTPUT_FILE, "r") as fp:
-    #     fp.read()
-
-    # De-encode Huffman
-    # Dequantize every block
-    # Call DCT inverse on every block
-
-    # Join 8x8 blocks
-    # for layer in layers:
-    #     layers_joined_blocks.append(block_join_layer(layer))
-
-    #     # Join Y, Cb, Cr layers
-    #     image: List[List[List[int]]] = join_image_layers(layers_joined_blocks)
-
-    return image
+    return image, im.bytes_size
 
 
 def separate_image_layers(image: List[List[List[int]]]) -> List[List[List[int]]]:

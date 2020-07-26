@@ -2,6 +2,7 @@ from typing import IO, Dict, List, Any
 import struct
 import subprocess
 import logging
+import os
 from src.compression.lossless import HuffmanEncoder
 
 log = logging.getLogger()
@@ -280,6 +281,9 @@ class IMGFile(CmnMixin):
 
         self.huffman = HuffmanEncoder()
 
+        # Keep track of size of file on disk
+        self.bytes_size = None
+
     def encode(self, layers: List[List[int]]):
         """
         :param layers: list of vectors of blocks. Each vector
@@ -346,6 +350,8 @@ class IMGFile(CmnMixin):
 
             for byte in encoded_main_data_bytes:
                 f.write(byte)
+
+        self.bytes_size = os.path.getsize(filename)
 
     def read(self, filename):
         """
