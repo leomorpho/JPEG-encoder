@@ -7,12 +7,13 @@ from src.compression.lossless import HuffmanEncoder
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
 
-L_ENDIAN = '< '  # little endian
+L_ENDIAN = '< ' # little endian
 BYTE1 = 1       # 1 byte
 BYTE2 = 2       # 2 byte
 BYTE3 = 2       # 3 byte
 BYTE4 = 4       # 4 byte
-UCHAR = "B"      # unsigned char    (1 byte)
+UCHAR = "B"     # unsigned char    (1 byte)
+CHAR = "c"      # character/byte
 USHORT = "H"    # unsigned short    (2 byte)
 UINT = "I"      # unsigned int      (4 byte)
 SINT = "i"      # signed int        (4 byte)
@@ -344,7 +345,7 @@ class IMGFile(CmnMixin):
             f.write(struct.pack(f'{UINT}', main_data_num_bytes))
 
             for byte in encoded_main_data_bytes:
-                f.write(struct.pack(f'{UCHAR}', byte))
+                f.write(byte)
 
     def read(self, filename):
         """
@@ -360,12 +361,8 @@ class IMGFile(CmnMixin):
             self._main_data_num_bytes: int = self.unpack(
                 f.read(BYTE4), unpack_type=UINT)
 
-            data = ""
-            for i in range(self._main_data_num_bytes):
-                byte = self.unpack(f.read(BYTE1), unpack_type=UCHAR)
-                data += "{0:b}".format(byte)
-
-            data = data[:-self._main_data_padding]
+            data = f.read()
+            data = str(data[:-self._main_data_padding].decode("utf-8"))
             self._encoded_main_data = data
 
     def vector_to_layers(self, vector: List[int]) -> List[List[List[int]]]:
@@ -443,6 +440,6 @@ class IMGFile(CmnMixin):
         byte_array = []
 
         for i in range(0, len(str_data), 8):
-            byte_array.append(int(str_data[i:i+8], 2))
+            byte_array.append(bytes(str_data[i:i+8].encode('utf-8')))
 
         return byte_array
