@@ -3,6 +3,7 @@ import struct
 import subprocess
 import logging
 import os
+from contextlib import suppress
 from src.compression.lossless import HuffmanEncoder
 
 log = logging.getLogger()
@@ -203,6 +204,9 @@ class BmpFile(CmnMixin):
 
         self.read_file(filename)
 
+        # Keep track of size on disk
+        self.bytes_size = os.path.getsize(filename)
+
     def read_file(self, filename):
         """Reads and populates the differents structures
         of the BMP file
@@ -340,6 +344,9 @@ class IMGFile(CmnMixin):
         encoded_main_data_bytes = self.str_to_byte_array(
             self._encoded_main_data)
         main_data_num_bytes = len(encoded_main_data_bytes)
+
+        with suppress(FileNotFoundError):
+            os.remove(filename)
 
         with open(filename, "wb") as f:
             f.write(struct.pack(f'{UINT}', self._width))

@@ -18,7 +18,7 @@ class Image(QWidget):
         self.matrix = self.bmp_image.matrix
         self.width = self.bmp_image.width
         self.height = self.bmp_image.height
-        self.bytes_size = self.bmp_image.byte_size
+        self.bytes_size = self.bmp_image.bytes_size
 
         if compression:
             self.matrix, self.bytes_size = JPEG(self.matrix, compression)

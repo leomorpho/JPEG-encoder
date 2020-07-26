@@ -1,5 +1,6 @@
 from typing import List
 import logging
+import sys
 from src.compression.dct import dct_forward, dct_inverse
 from src.compression.quantization import quantize, dequantize
 from src.compression.zigzag import zigzag, un_zigzag
@@ -66,6 +67,9 @@ def JPEG(original_image: List[List[List[int]]], compression_lvl=90) -> List[List
     im.write(OUTPUT_FILE)
     im.read(OUTPUT_FILE)
     decoded_layers_zigzagged = im.decode()
+    print("Size of compressed and uncompressed zigzagged data")
+    print(f"uncompressed:   {sys.getsizeof(layers_zigzagged)}")
+    print(f"compressed:     {sys.getsizeof(decoded_layers_zigzagged)}")
 
     assert(layers_zigzagged == decoded_layers_zigzagged)
 
