@@ -19,7 +19,7 @@ class WaveformImage(QWidget):
         self.wavFile = wavFile
         self.samples: List[int] = self.wavFile.samples
         self.downsampled_samples = []
-        self.setMinimumSize(1000, 300)
+        self.setMinimumSize(700, 500)
 
         self.create_matrix()
 
@@ -140,38 +140,6 @@ def scale(
     :param new_range: new wanted range
     """
     return int(x * new_range / x_max_val)
-
-
-def fade_in_and_out(matrix):
-    for i, row in enumerate(matrix):
-        matrix[i] = fade_row(row)
-
-    return matrix
-
-
-def fade_row(row):
-    end = len(row)
-    middle = int(len(row) / 2)
-    step = 256 / middle
-    fade = 256
-
-    # First half of list
-    for i in range(middle):
-        val = int(row[i] + fade)
-        if val > 255:
-            val = 255
-        row[i] = val
-        fade -= step
-
-    # Second half of list
-    for i in range(middle, end):
-        val = int(row[i] + fade)
-        if val > 255:
-            val = 255
-        row[i] = val
-        fade += step
-
-    return row
 
 
 class InfoWidget(QWidget):

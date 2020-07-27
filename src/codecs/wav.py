@@ -105,7 +105,7 @@ class WavFile():
             raise Exception("No flag for this bytePerSample")
 
         for _ in range(numSamples):
-            sample = self.unpack(flag, f.read(bytesPerSample))
+            sample = self.unpack("h", f.read(bytesPerSample))
             if sample > self.maxValInSamples:
                 self.maxValInSamples = sample
             data.append(sample)
