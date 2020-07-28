@@ -85,6 +85,8 @@ class WavFile():
             self.maxValInSamples = 0
             self.data = self.load_data(f)
 
+            print(self)
+
     def unpack(self, flag, byte_data: bytes):
         return struct.unpack(LITTLE_ENDIAN + flag, byte_data)[0]
 
@@ -92,23 +94,28 @@ class WavFile():
         """Read the actual data stored in the WAV file"""
         data = []
         bytesPerSample = int(self.bitsPerSample / 8)
-        numSamples = int(self.subchunk2Size / bytesPerSample)
+        numSamples = self.subchunk2Size / bytesPerSample
 
         flag = None
         if bytesPerSample == 1:
-            flag = "B"
+            flag = "b"
         elif bytesPerSample == 2:
-            flag = "H"
+            flag = "h"
+            print("2 byte samples")
         elif bytesPerSample == 4:
-            flag = "I"
+            flag = "i"
         else:
             raise Exception("No flag for this bytePerSample")
 
-        for _ in range(numSamples):
-            sample = self.unpack("h", f.read(bytesPerSample))
-            if sample > self.maxValInSamples:
-                self.maxValInSamples = sample
-            data.append(sample)
+        while True:
+            try:
+                byte  = f.read(bytesPerSample)
+                sample = self.unpack(flag, byte)
+                if sample > self.maxValInSamples:
+                    self.maxValInSamples = sample
+                data.append(sample)
+            except:
+                break
         return data
 
     def __repr__(self):

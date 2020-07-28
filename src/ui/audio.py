@@ -45,7 +45,7 @@ class WaveformImage(QWidget):
         temp = downsample_time(self.samples, self.time_pixels)
         self.downsampled_samples = downsample_amplitude(
             temp,
-            bitRange,
+            bitRange / 2,
             self.amplitude_pixels)
 
         self.matrix = [[] for i in range(self.amplitude_pixels)]
@@ -95,13 +95,13 @@ def downsample_time(list_object, max_val):
     # queue holds value to be averaged
     queue = []
 
-    for index, val in enumerate(list_object):
+    for  val in list_object:
         queue.append(val)
 
         if len(queue) >= scale_factor:
             new_list_object.append(average(queue))
             queue = []
-    new_list_object[-1] = average(queue + [new_list_object[-1]])
+    # new_list_object[-1] = average(queue + [new_list_object[-1]])
 
     return new_list_object
 
