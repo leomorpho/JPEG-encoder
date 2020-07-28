@@ -63,19 +63,17 @@ class MainWindowQ1(QMainWindow):
 
             imageWidget = WaveformImage(wav_file)
 
-            # cps = SoundCompressor()
-            # cps.compress(wav_file)
-            # infoDict = {
-            #     "Huffman": cps.get_huffman_compression_ratio(),
-            #     "LZW": cps.get_LZW_compression_ratio(),
-            #     "Huffman-LZW": cps.get_huffman_based_LZW_compression_rate(),
-            #     "LZW-Huffman": cps.get_LZW_based_huffman_compression_rate()
-            # }
+            cps = SoundCompressor()
+            cps.compress(wav_file)
+            infoDict = {
+                "Huffman": cps.get_huffman_compression_ratio(),
+                "LZW": cps.get_LZW_compression_ratio(),
+            }
 
-            # infoWidget = InfoWidget(infoDict)
+            infoWidget = InfoWidget(infoDict)
 
             vbox.addWidget(imageWidget)
-            # vbox.addWidget(infoWidget)
+            vbox.addWidget(infoWidget)
 
             central_widget = QWidget()
             central_widget.setLayout(vbox)
