@@ -106,7 +106,8 @@ class HuffmanEncoder:
         self.sample_to_code_dict = self.create_sample_to_code_dict(leaves)
 
         # Encode samples to codes
-        self._encoded_samples = self.convert_samples_to_codes(data, self.sample_to_code_dict)
+        self._encoded_samples = self.convert_samples_to_codes(
+            data, self.sample_to_code_dict)
 
         return self._encoded_samples
 
@@ -237,9 +238,10 @@ class HuffmanEncoder:
 
 
 class LZWEncoder:
-    def __init__(self, wav_file):
-        self.wav_file = wav_file
-        self._unencoded_samples = wav_file.samples
+    def __init__(self, wav_file=None):
+        if wav_file:
+            self.wav_file = wav_file
+            self._unencoded_samples = wav_file.samples
         self._encoded_samples = []
 
     def encode_wav(self):
@@ -248,6 +250,7 @@ class LZWEncoder:
         self._encoded_samples = self.encode(self.wav_file.samples)
 
     def encode(self, data):
+        self._unencoded_samples = data
         encoded_sentence = []
 
         dictionary = dict()
@@ -283,6 +286,7 @@ class LZWEncoder:
                 s = c
 
         encoded_sentence.append(str(dictionary[str(s)]))
+        self._encoded_samples = encoded_sentence
         return encoded_sentence
 
     def compression_ratio(self, encoded_samples=None):
@@ -290,11 +294,16 @@ class LZWEncoder:
         if not encoded_samples:
             encoded_samples = self._encoded_samples
 
-        unencoded_binary = [bin(x) for x in self._unencoded_samples]
+        # Each member of the input data is a 2 byte short integer
+        unencoded_binary_bytes = len(self._unencoded_samples) * 2
+        encoded_samples_bytes = int(len("".join(encoded_samples)) / 8)
+        if encoded_samples_bytes == 0:
+            encoded_samples_bytes = 1
 
-        len_unencoded = len("".join(unencoded_binary))
-        len_encoded = len("".join(self.encoded_samples))
-        return round(len_unencoded / len_encoded, 4)
+        log.debug(unencoded_binary_bytes)
+        log.debug(encoded_samples_bytes)
+
+        return round(unencoded_binary_bytes / encoded_samples_bytes, 4)
 
     @property
     def encoded_samples(self):
