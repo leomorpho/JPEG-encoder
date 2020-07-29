@@ -181,6 +181,7 @@ class HuffmanEncoder:
     def assign_code_recurse(cls, node: HuffmanNode):
         # Assign codes to children
         node_code = node.code
+        log.debug(node_code)
 
         if node.children:
             node.children[0].code = node_code + "0"
