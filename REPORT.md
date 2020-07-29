@@ -16,15 +16,14 @@ For the compression ratio, the input is translated to a list of short integers. 
 
 The compression ratio only takes into account the payload of the sound file. The size of the Huffman tree itself is not taken into account as a real file would need to have it stored for later decoding.
 
-| Filename  | Huffman | LZW    | LZW-based Huffman | Huffman-based LZW |
-| --------- | ------- | ------ | ----------------- | ----------------- |
-| Car horn  | 1.5638  | 5.1213 |                   |                   |
-| Explosion | 1.1753  | 3.7733 |                   |                   |
-| Fire      | 1.1797  | 4.0152 |                   |                   |
-| Leopard   | 1.3856  | 4.5684 |                   |                   |
-| Wav8bit   | 1.3462  | 4.6984 |                   |                   |
+| Filename  | Huffman | LZW  |
+| --------- | ------- | ---- |
+| Car horn  | 1.21    | 4.03 |
+| Explosion | 1.18    | 3.72 |
+| Fire      | 1.20    | 4.04 |
+| Leopard   | 1.32    | 4.20 |
 
-
+From my research online, Huffman generally compresses at 1.5:1 and LZW at 5:1. My ratios are slightly below these. The sounds used for testing may have more entropy than the average, or else my code may have a bug. I tested my code extensively with an 81% code coverage in `pytests` tests.
 
 ## Q2
 
@@ -55,7 +54,7 @@ The two chroma layers are quantized more aggressively than the luma layer. The 5
 
 ### Huffman encoding
 
-The Huffman tree is sent a priori for my implementation, meaning that it is part of the image in `IMG` format.
+The Huffman tree is not part of the written file. Therefore, the file is not currently portable. To make it portable, the huffman tree will need to be persisted with the file.s
 
 ### Experimentation
 

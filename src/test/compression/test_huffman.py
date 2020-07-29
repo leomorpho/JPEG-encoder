@@ -49,13 +49,15 @@ test_encode_huffman = [
         # Worked it out on paper, and the nodes are re-ordered on every node linkages,
         # this result can totally happen. It unfortunately results in a less efficient
         # encoding.
-        expected_output=['00', '00', '11', '11', '11', '11', '01', '01', '100', '101'],
+        expected_output=['00', '00', '11', '11',
+                         '11', '11', '01', '01', '100', '101'],
         compression_ratio=10.0
     ),
     InputOutputCase(
         name="Nominal",
         input_val=[1, 2, 1, 2, 10, 2, 2, 2, 2, 2, 2, 2, 34, 3, 3, 6, 6, 7],
-        expected_output=['1111', '0', '1111', '0', '1100', '0', '0', '0', '0', '0', '0', '0', '1101', '100', '100', '101', '101', '1110'],
+        expected_output=['1111', '0', '1111', '0', '1100', '0', '0', '0',
+                         '0', '0', '0', '0', '1101', '100', '100', '101', '101', '1110'],
         compression_ratio=7.2
     )
 ]
