@@ -28,35 +28,35 @@ test_encode_huffman = [
         name="Nominal",
         input_val=[1, 10],
         expected_output=['0', '1'],
-        compression_ratio=1
+        compression_ratio=4.0
     ),
     InputOutputCase(
         name="Nominal",
-        input_val=['87', '121', '123'],
+        input_val=[87, 121, 123],
         expected_output=['10', '11', '0'],
-        compression_ratio=1
+        compression_ratio=6.0
     ),
     InputOutputCase(
         name="Nominal",
         input_val=[1, 1, 1, 1, 10],
         expected_output=['1', '1', '1', '1', '0'],
-        compression_ratio=1
+        compression_ratio=10.0
     ),
     InputOutputCase(
         name="From notes",
-        input_val=["123", "123", "100", "100", "100", "100", "99", "99", "50", "10"],
+        input_val=[123, 123, 100, 100, 100, 100, 99, 99, 50, 10],
         # This result looks off because it has no '0', or '1', but it is correct.
         # Worked it out on paper, and the nodes are re-ordered on every node linkages,
         # this result can totally happen. It unfortunately results in a less efficient
         # encoding.
         expected_output=['00', '00', '11', '11', '11', '11', '01', '01', '100', '101'],
-        compression_ratio=1
+        compression_ratio=10.0
     ),
     InputOutputCase(
         name="Nominal",
         input_val=[1, 2, 1, 2, 10, 2, 2, 2, 2, 2, 2, 2, 34, 3, 3, 6, 6, 7],
         expected_output=['1111', '0', '1111', '0', '1100', '0', '0', '0', '0', '0', '0', '0', '1101', '100', '100', '101', '101', '1110'],
-        compression_ratio=1
+        compression_ratio=7.2
     )
 ]
 

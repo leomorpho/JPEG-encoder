@@ -66,13 +66,20 @@ class HuffmanEncoder:
         if not encoded_samples:
             encoded_samples = self._encoded_samples
 
-        unencoded_binary = [bin(x) for x in self._unencoded_samples]
+        # Each member of the input data is a 2 byte short integer
+        unencoded_binary_bytes = len(self._unencoded_samples) * 2
+        encoded_samples_bytes = int(len("".join(encoded_samples)) / 8)
+        if encoded_samples_bytes == 0:
+            encoded_samples_bytes = 1
 
-        len_unencoded = len("".join(unencoded_binary))
-        len_encoded = len("".join(encoded_samples))
-        return round(len_unencoded / len_encoded, 4)
+        log.debug(unencoded_binary_bytes)
+        log.debug(encoded_samples_bytes)
+
+        return round(unencoded_binary_bytes / encoded_samples_bytes, 4)
 
     def encode(self, data):
+        self._unencoded_samples = data
+
         # Create probability distribution for the samples
         prob_distr = self.create_prob_distribution(data)
 
@@ -99,7 +106,9 @@ class HuffmanEncoder:
         self.sample_to_code_dict = self.create_sample_to_code_dict(leaves)
 
         # Encode samples to codes
-        return self.convert_samples_to_codes(data, self.sample_to_code_dict)
+        self._encoded_samples = self.convert_samples_to_codes(data, self.sample_to_code_dict)
+
+        return self._encoded_samples
 
     def decode(self, data: str):
         if type(data) == list:
@@ -165,7 +174,6 @@ class HuffmanEncoder:
     def assign_code_recurse(cls, node: HuffmanNode):
         # Assign codes to children
         node_code = node.code
-        log.debug(node_code)
 
         if node.children:
             node.children[0].code = node_code + "0"

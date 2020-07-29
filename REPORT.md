@@ -12,6 +12,10 @@ While the compression ratios of LZW are better, it does not show the impact of h
 
 _Create a map of my implementation (classes, modules). Describe the interface of all objects._
 
+For the compression ratio, the input is translated to a list of short integers. The reason is that the audio files we are reading for this assignment would store [0-255] in a short integer. I therefore calculate the space it would take in regards to that (and not a 4 byte integer or float). To get the length in bytes of the encoded data, I divide the length of it by 8 for 8 bits/byte since the codes would be packed together.
+
+The compression ratio only takes into account the payload of the sound file. The size of the Huffman tree itself is not taken into account as a real file would need to have it stored for later decoding.
+
 | Filename  | Huffman | LZW    | LZW-based Huffman | Huffman-based LZW |
 | --------- | ------- | ------ | ----------------- | ----------------- |
 | Car horn  | 1.5638  | 5.1213 |                   |                   |
