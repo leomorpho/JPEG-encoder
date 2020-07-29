@@ -16,27 +16,31 @@ log.setLevel(logging.DEBUG)
 class InputOutputCase():
     """Represents a test case with input_val and expected expected_output"""
 
-    def __init__(self, name, input_val, expected_output):
+    def __init__(self, name, input_val, expected_output, compression_ratio=None):
         self.name = name
         self.input_val = input_val
         self.expected_output = expected_output
+        self.compression_ratio = compression_ratio
 
 
 test_encode_huffman = [
     InputOutputCase(
         name="Nominal",
         input_val=[1, 10],
-        expected_output=['0', '1']
+        expected_output=['0', '1'],
+        compression_ratio=1
     ),
     InputOutputCase(
         name="Nominal",
         input_val=['87', '121', '123'],
-        expected_output=['10', '11', '0']
+        expected_output=['10', '11', '0'],
+        compression_ratio=1
     ),
     InputOutputCase(
         name="Nominal",
         input_val=[1, 1, 1, 1, 10],
-        expected_output=['1', '1', '1', '1', '0']
+        expected_output=['1', '1', '1', '1', '0'],
+        compression_ratio=1
     ),
     InputOutputCase(
         name="From notes",
@@ -45,12 +49,14 @@ test_encode_huffman = [
         # Worked it out on paper, and the nodes are re-ordered on every node linkages,
         # this result can totally happen. It unfortunately results in a less efficient
         # encoding.
-        expected_output=['00', '00', '11', '11', '11', '11', '01', '01', '100', '101']
+        expected_output=['00', '00', '11', '11', '11', '11', '01', '01', '100', '101'],
+        compression_ratio=1
     ),
     InputOutputCase(
         name="Nominal",
         input_val=[1, 2, 1, 2, 10, 2, 2, 2, 2, 2, 2, 2, 34, 3, 3, 6, 6, 7],
-        expected_output=['1111', '0', '1111', '0', '1100', '0', '0', '0', '0', '0', '0', '0', '1101', '100', '100', '101', '101', '1110']
+        expected_output=['1111', '0', '1111', '0', '1100', '0', '0', '0', '0', '0', '0', '0', '1101', '100', '100', '101', '101', '1110'],
+        compression_ratio=1
     )
 ]
 
@@ -62,9 +68,11 @@ def test_encode_huffman(case):
 
     he = HuffmanEncoder()
     result = he.encode(case.input_val)
+    cr = he.compression_ratio()
 
     log.debug("Result: " + str(result))
     assert(result == case.expected_output)
+    assert(cr == case.compression_ratio)
 
 #########################################
 #                                       #

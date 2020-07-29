@@ -124,22 +124,6 @@ class HuffmanEncoder:
 
         return decoded
 
-    def tree_to_list():
-        """
-        Convert the Huffman tree to a list of 1 and 0. The 1s are leaves
-        and always have their associated data directly after.
-        """
-        # TODO
-        pass
-
-    def list_to_tree():
-        """
-        Convert the Huffman tree to a list of 1 and 0. The 1s are leaves
-        and always have their associated data directly after.
-        """
-        # TODO
-        pass
-
     @classmethod
     def create_tree(cls, nodes: List[HuffmanNode]) -> HuffmanNode:
         """Create a Huffman tree from the given list and return the root node
