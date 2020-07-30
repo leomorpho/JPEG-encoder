@@ -112,7 +112,9 @@ I did not think that I would be able to fix this size issue, but after finding o
 
 ### File saving
 
-The huffman tree is serialized to a string. For every node which has children, a "1" is appended. If the node has no children, a "0" is a appended, followed by a byte which represents the leaf's sample value..
+The huffman tree is serialized to a string. For every node which has children, a "1" is appended. If the node has no children, a "0" is a appended, followed by a byte which represents the leaf's sample value.
+
+Serializing and deserializing the Huffman tree was quite a challenge. The deserialization the most difficult of the two. It was hard to test that it worked. I tested by first serializing (since I could easily look at my serializer result), then I deserialized it, deserialized it, and compared the two serialized strings, making sure that they were equal.
 
 
 
