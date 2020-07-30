@@ -191,7 +191,9 @@ class HuffmanEncoder:
 
         elif next_val == "0":
             binary_str = self.serialized_tree.pop(0)
-            node.sample_value = int("".join(binary_str), 2)
+            left_child = HuffmanNode()
+            left_child.sample_value = int("".join(binary_str), 2)
+            node.children.append(left_child)
             log.info(node.sample_value)
 
         # Do the same for the other side
@@ -204,7 +206,9 @@ class HuffmanEncoder:
 
         elif next_val == "0":
             binary_str = self.serialized_tree.pop(0)
-            node.sample_value = int("".join(binary_str), 2)
+            right_child = HuffmanNode()
+            right_child.sample_value = int("".join(binary_str), 2)
+            node.children.append(right_child)
             log.info(node.sample_value)
 
         return node
