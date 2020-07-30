@@ -9,7 +9,7 @@ from src.compression.lossless import HuffmanEncoder
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
 
-L_ENDIAN = '< ' # little endian
+L_ENDIAN = '< '  # little endian
 BYTE1 = 1       # 1 byte
 BYTE2 = 2       # 2 byte
 BYTE3 = 2       # 3 byte
@@ -352,13 +352,14 @@ class IMGFile(CmnMixin):
             f.write(struct.pack(f'{UINT}', self._height))
             f.write(struct.pack(f'{UINT}', self._block_size))
             f.write(struct.pack(f'{UINT}', self._main_data_padding))
+        log.debug(f"size 1: {os.path.getsize(filename)}")
 
-            for byte in encoded_main_data_bytes:
-                f.write(byte)
+        with open(filename, "ab+") as f:
+            f.write(encoded_main_data_bytes)
 
         self.bytes_size = os.path.getsize(filename)
         log.debug(len(encoded_main_data_bytes))
-        log.debug(os.path.getsize(filename))
+        log.debug(f"size 2: {os.path.getsize(filename)}")
 
     def read(self, filename):
         """
@@ -373,7 +374,15 @@ class IMGFile(CmnMixin):
                 f.read(BYTE4), unpack_type=UINT)
 
             data = f.read()
-            data = str(data[:-self._main_data_padding].decode("utf-8"))
+
+            # Convert each byte to an integer
+            binary_list = []
+            for a in data:
+                binary_list.append('{0:08b}'.format(a))
+
+            data = "".join(binary_list)
+
+            data = str(data[:-self._main_data_padding])
             self._encoded_main_data = data
 
     def vector_to_layers(self, vector: List[int]) -> List[List[List[int]]]:
@@ -427,6 +436,17 @@ class IMGFile(CmnMixin):
 
         return row
 
+    def str_to_byte_array(self, str_data):
+        byte_array = bytearray()
+        log.debug(str_data)
+
+        for i in range(0, len(str_data), 8):
+            integer = int((str_data[i:i+8]), 2)
+            byte_array.append(integer)
+
+        log.debug(byte_array)
+        return byte_array
+
     #############################
     #                           #
     # Static Methods            #
@@ -445,15 +465,3 @@ class IMGFile(CmnMixin):
                     for item in block:
                         vector.append(item)
         return vector
-
-    @staticmethod
-    def str_to_byte_array(str_data):
-        byte_array = []
-        log.debug(str_data)
-
-        for i in range(0, len(str_data), 8):
-            byte_array.append(bytes(str_data[i:i+8].encode('utf-8')))
-
-
-        log.debug(byte_array)
-        return byte_array

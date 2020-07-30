@@ -102,6 +102,16 @@ Reapplying quantization for 90% quality yields a result which appears to be much
 
 ![Screen Shot 2020-07-22 at 3.42.17 PM](REPORT.assets/Screen%20Shot%202020-07-22%20at%203.42.17%20PM.png)
 
+
+
+### Filesize issues
+
+I wonder if the enormous file size is introduced by utf8 encoding. Looking at the byte array, 2 bytes take the space of 16 bytes. There is therefore an issue with what should be a byte ending up being 8 times as large. Each bit is being encoded as a byte.
+
+I did not think that I would be able to fix this size issue, but after finding out that each bit was encoded as a byte, i figured out how to correct it. I converted each string of binary ("11010010") to an integer, then wrote that integer as a single byte to file. I then read that integer and converted it to a binary string.
+
+
+
 ## References
 
 * [Comparative data compression techniques and multi-compression results](https://iopscience.iop.org/article/10.1088/1757-899X/53/1/012081/pdf)
