@@ -100,3 +100,78 @@ def test_decode_huffman(case):
 
     log.debug("Result: " + str(decoded))
     assert(decoded == case)
+
+#########################################
+#                                       #
+# Write/read Huffman to/from disk       #
+#                                       #
+#########################################
+
+
+class ReadWriteCase():
+    """Represents a test case with input_val and expected expected_output"""
+
+    def __init__(
+            self,
+            name,
+            input_val,
+            expected_output,
+            encoded_tree):
+        self.name = name
+        self.input_val = input_val
+        self.expected_output = expected_output
+        self.encoded_tree = encoded_tree
+
+
+test_serialize = [
+    ReadWriteCase(
+        name="Nominal",
+        input_val=[1, 10],
+        expected_output=['0', '1'],
+        encoded_tree=['1', '0', '00000001', '0', '00001010'],
+    ),
+    ReadWriteCase(
+        name="Nominal",
+        input_val=[87, 121, 123],
+        expected_output=['10', '11', '0'],
+        encoded_tree=['1', '0', '01111011', '1',
+                      '0', '01010111', '0', '01111001'],
+    ),
+    ReadWriteCase(
+        name="Nominal",
+        input_val=[1, 1, 1, 1, 10],
+        expected_output=['1', '1', '1', '1', '0'],
+        encoded_tree=['1', '0', '00001010', '0', '00000001'],
+    ),
+    ReadWriteCase(
+        name="From notes",
+        input_val=[123, 123, 100, 100, 100, 100, 99, 99, 50, 10],
+        # This result looks off because it has no '0', or '1', but it is correct.
+        # Worked it out on paper, and the nodes are re-ordered on every node linkages,
+        # this result can totally happen. It unfortunately results in a less efficient
+        # encoding.
+        expected_output=['00', '00', '11', '11',
+                         '11', '11', '01', '01', '100', '101'],
+        encoded_tree=['1', '1', '0', '01111011', '0', '01100011', '1',
+                      '1', '0', '00110010', '0', '00001010', '0', '01100100'],
+    ),
+    # ReadWriteCase(
+    #     name="Nominal",
+    #     input_val=[1, 2, 1, 2, 10, 2, 2, 2, 2, 2, 2, 2, 34, 3, 3, 6, 6, 7],
+    #     expected_output=['1111', '0', '1111', '0', '1100', '0', '0', '0',
+    #                      '0', '0', '0', '0', '1101', '100', '100', '101', '101', '1110'],
+    #     encoded_tree = "100000000011001100100001100101110100010011000100010011011010001010110010001010111",
+    # )
+]
+
+
+@pytest.mark.parametrize("case", test_serialize)
+def test_serialize(case):
+    log.info("Case: " + case.name)
+    log.debug("Input: " + str(case.input_val))
+
+    he = HuffmanEncoder()
+    result = he.encode(case.input_val)
+    assert(result == case.expected_output)
+    log.info(he.serialize_tree())
+    assert(he.serialize_tree() == case.encoded_tree)

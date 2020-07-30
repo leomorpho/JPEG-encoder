@@ -53,7 +53,7 @@ class HuffmanEncoder:
             self._encoded_samples = []
 
         # Encoded tree is a tree ready to be written to file
-        self.encoded_tree = ""
+        self.serialized_tree = ""
 
     @property
     def encoded_samples(self):
@@ -137,24 +137,47 @@ class HuffmanEncoder:
 
         return decoded
 
-    def write_tree(self, node):
-        """
-        Convert the huffman tree to a string. A 1 represents a child.
-        A 0 represents a leaf and is followed by the leaf value.
-        """
-        if node.children:
-            self.encoded_tree += '1'
-            self.write_tree(node.children[0])
-            self.write_tree(node.children[1])
-        else:
-            self.encoded_tree += f' '
 
+    def serialize_tree(self) -> str:
+        def helper(node):
+            """
+            Convert the huffman tree to a string. A 1 represents a child.
+            A 0 represents a leaf and is followed by the leaf value which
+            is 1 byte wide.
 
-    def read_tree(self, node):
+            The encoded tree is a string representing a binary number.
+            """
+            serialized_tree = []
+            if node.children:
+                serialized_tree.append('1')
+                serialized_tree += helper(node.children[0])
+                serialized_tree += helper(node.children[1])
+            else:
+                serialized_tree.append('0')
+                serialized_tree.append("{0:08b}".format(int(node.sample_value)))
+                log.info(node.sample_value)
+            return serialized_tree
+
+        return helper(self.root_node)
+
+    def read_tree(self, string):
         """
         Convert a list of 1 (indicating a child) and 0 (indicating a leaf)
         to a huffman tree.
         """
+        # Discard previous Huffman tree
+        self.root_node = None
+
+        def helper(self, string):
+            deserialized_node = None
+            if len(string) == 0:
+                return deserliazed_node
+
+            # For "1", create a new node
+            if string[0] == "1":
+                deserliazed_node = HuffmanNode()
+                deserliazed_node.children[0] = helper(string[1:])
+
 
     @classmethod
     def create_tree(cls, nodes: List[HuffmanNode]) -> HuffmanNode:
@@ -217,6 +240,18 @@ class HuffmanEncoder:
         for leaf in leaves:
             newDict[leaf.sample_value] = leaf.code
         return newDict
+
+    @staticmethod
+    def pad_to_full_byte(value):
+        """
+        Pad a value that is less than a byte to a full byte
+        """
+        padding = 8 - len(value) % 8
+
+        for i in range(padding):
+            value += "0"
+
+        return value
 
     # TODO: convert samples to code and vice versa can be one function
     @staticmethod

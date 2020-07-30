@@ -27,7 +27,7 @@ From my research online, Huffman generally compresses at 1.5:1 and LZW at 5:1. M
 
 ## Q2
 
-The following implementation is an attempt at a simplified version of JPEG. It is simplified in that it supports only the BMP file specified within the assignment. It currently does not work perfectly, with the quality of the compressed image being much lower than expected. I was unable to debug this part, as the whole project was massive and took me about 60h.
+The following implementation is an attempt at a simplified version of JPEG. It is simplified in that it supports only the BMP file specified within the assignment. It currently does not work perfectly, with the quality of the compressed image being much lower than expected. I was unable to debug this part, as the whole project was massive and took me about 60h and 4800 lines of code.
 
 
 
@@ -104,11 +104,15 @@ Reapplying quantization for 90% quality yields a result which appears to be much
 
 
 
-### Filesize issues
+### File size issues
 
 I wonder if the enormous file size is introduced by utf8 encoding. Looking at the byte array, 2 bytes take the space of 16 bytes. There is therefore an issue with what should be a byte ending up being 8 times as large. Each bit is being encoded as a byte.
 
 I did not think that I would be able to fix this size issue, but after finding out that each bit was encoded as a byte, i figured out how to correct it. I converted each string of binary ("11010010") to an integer, then wrote that integer as a single byte to file. I then read that integer and converted it to a binary string.
+
+### File saving
+
+The huffman tree is serialized to a string. For every node which has children, a "1" is appended. If the node has no children, a "0" is a appended, followed by a byte which represents the leaf's sample value..
 
 
 
