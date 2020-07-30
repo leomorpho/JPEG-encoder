@@ -52,6 +52,9 @@ class HuffmanEncoder:
             self._unencoded_samples = wav_file.samples
             self._encoded_samples = []
 
+        # Encoded tree is a tree ready to be written to file
+        self.encoded_tree = ""
+
     @property
     def encoded_samples(self):
         return self._encoded_samples
@@ -133,6 +136,25 @@ class HuffmanEncoder:
         decoded.append(current_node.sample_value)
 
         return decoded
+
+    def write_tree(self, node):
+        """
+        Convert the huffman tree to a string. A 1 represents a child.
+        A 0 represents a leaf and is followed by the leaf value.
+        """
+        if node.children:
+            self.encoded_tree += '1'
+            self.write_tree(node.children[0])
+            self.write_tree(node.children[1])
+        else:
+            self.encoded_tree += f' '
+
+
+    def read_tree(self, node):
+        """
+        Convert a list of 1 (indicating a child) and 0 (indicating a leaf)
+        to a huffman tree.
+        """
 
     @classmethod
     def create_tree(cls, nodes: List[HuffmanNode]) -> HuffmanNode:

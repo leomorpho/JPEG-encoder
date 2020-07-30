@@ -343,7 +343,6 @@ class IMGFile(CmnMixin):
         self.pad_main_data()
         encoded_main_data_bytes = self.str_to_byte_array(
             self._encoded_main_data)
-        main_data_num_bytes = len(encoded_main_data_bytes)
 
         with suppress(FileNotFoundError):
             os.remove(filename)
@@ -353,12 +352,13 @@ class IMGFile(CmnMixin):
             f.write(struct.pack(f'{UINT}', self._height))
             f.write(struct.pack(f'{UINT}', self._block_size))
             f.write(struct.pack(f'{UINT}', self._main_data_padding))
-            f.write(struct.pack(f'{UINT}', main_data_num_bytes))
 
             for byte in encoded_main_data_bytes:
                 f.write(byte)
 
         self.bytes_size = os.path.getsize(filename)
+        log.debug(len(encoded_main_data_bytes))
+        log.debug(os.path.getsize(filename))
 
     def read(self, filename):
         """
@@ -370,8 +370,6 @@ class IMGFile(CmnMixin):
             self._block_size: int = self.unpack(
                 f.read(BYTE4), unpack_type=UINT)
             self._main_data_padding: int = self.unpack(
-                f.read(BYTE4), unpack_type=UINT)
-            self._main_data_num_bytes: int = self.unpack(
                 f.read(BYTE4), unpack_type=UINT)
 
             data = f.read()
@@ -451,8 +449,11 @@ class IMGFile(CmnMixin):
     @staticmethod
     def str_to_byte_array(str_data):
         byte_array = []
+        log.debug(str_data)
 
         for i in range(0, len(str_data), 8):
             byte_array.append(bytes(str_data[i:i+8].encode('utf-8')))
 
+
+        log.debug(byte_array)
         return byte_array

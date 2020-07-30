@@ -125,13 +125,13 @@ class MainWindowQ2(QMainWindow):
         ten.setStatusTip("10% compression")
         ten.triggered.connect(self.compress_10)
 
-        # Toolbar
-        self.toolbar=self.addToolBar('90%')
-        self.toolbar.addAction(ninety)
-        self.toolbar=self.addToolBar('50%')
-        self.toolbar.addAction(fifty)
-        self.toolbar=self.addToolBar('10%')
-        self.toolbar.addAction(ten)
+        # # Toolbar
+        # self.toolbar=self.addToolBar('90%')
+        # self.toolbar.addAction(ninety)
+        # self.toolbar=self.addToolBar('50%')
+        # self.toolbar.addAction(fifty)
+        # self.toolbar=self.addToolBar('10%')
+        # self.toolbar.addAction(ten)
 
         # Window dimensions
         geometry=qApp.desktop().availableGeometry(self)
@@ -155,7 +155,7 @@ class MainWindowQ2(QMainWindow):
             self.image_file_path=dialog.selectedFiles()[0]
 
             self.original_image_widget = Image(self.image_file_path)
-            self.compressed_image_widget = Image(self.image_file_path, compression=90)
+            self.compressed_image_widget = Image(self.image_file_path, compression=50)
             print(self.original_image_widget.bytes_size)
             print(self.compressed_image_widget.bytes_size)
 

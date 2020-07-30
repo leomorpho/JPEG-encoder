@@ -27,6 +27,10 @@ From my research online, Huffman generally compresses at 1.5:1 and LZW at 5:1. M
 
 ## Q2
 
+The following implementation is an attempt at a simplified version of JPEG. It is simplified in that it supports only the BMP file specified within the assignment. It currently does not work perfectly, with the quality of the compressed image being much lower than expected. I was unable to debug this part, as the whole project was massive and took me about 60h.
+
+
+
 The following steps were implemented:
 
 * Separate RGB into YCbCr
