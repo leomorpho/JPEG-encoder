@@ -40,8 +40,9 @@ class HuffmanNode:
         # return "%s(%r)" % (self.__class__, self.__dict__)
 
         formatted_repr = f"\n{self.__class__}\n"
-        for attr, val in self.__dict__.items():
-            formatted_repr += "\t%20s: %12s\n" % (attr, val)
+        # for attr, val in self.__dict__.items():
+        #     formatted_repr += "\t%20s: %12s\n" % (attr, val)
+        formatted_repr += f"sample value: {self.sample_value}"
         return formatted_repr
 
 
@@ -137,8 +138,8 @@ class HuffmanEncoder:
 
         return decoded
 
-
     def serialize_tree(self) -> str:
+        # Recursive helper function
         def helper(node):
             """
             Convert the huffman tree to a string. A 1 represents a child.
@@ -154,30 +155,59 @@ class HuffmanEncoder:
                 serialized_tree += helper(node.children[1])
             else:
                 serialized_tree.append('0')
-                serialized_tree.append("{0:08b}".format(int(node.sample_value)))
-                log.info(node.sample_value)
+                serialized_tree.append(
+                    "{0:08b}".format(int(node.sample_value)))
             return serialized_tree
 
         return helper(self.root_node)
 
-    def read_tree(self, string):
+    def deserialize_tree(self, serialized):
         """
         Convert a list of 1 (indicating a child) and 0 (indicating a leaf)
         to a huffman tree.
         """
-        # Discard previous Huffman tree
-        self.root_node = None
+        # For testing purposes, serialized can be passed as a string.
+        # This makes it easier to visualize what is going on under the hood.
+        if type(serialized) == str:
+            serialized = list(serialized)
 
-        def helper(self, string):
-            deserialized_node = None
-            if len(string) == 0:
-                return deserliazed_node
+        self.serialized_tree = serialized
 
-            # For "1", create a new node
-            if string[0] == "1":
-                deserliazed_node = HuffmanNode()
-                deserliazed_node.children[0] = helper(string[1:])
+        self.root_node = self.expand()
 
+    def expand(self):
+        """
+        Recursive helper function to expand a a string of 1 and 0 to a Huffman tree
+        """
+        log.info(self.serialized_tree)
+        node = HuffmanNode()
+        node.children = []
+        self.serialized_tree.pop(0)
+
+        next_val = self.serialized_tree.pop(0)
+        if next_val == "1":
+            left_child = self.expand()
+            node.children.append(left_child)
+
+        elif next_val == "0":
+            binary_str = self.serialized_tree.pop(0)
+            node.sample_value = int("".join(binary_str), 2)
+            log.info(node.sample_value)
+
+        # Do the same for the other side
+        next_val = self.serialized_tree.pop(0)
+        if next_val == "1":
+            right_child = self.expand()
+            # if len(serialized_tree) == 0:
+            #     return node, ""
+            node.children.append(right_child)
+
+        elif next_val == "0":
+            binary_str = self.serialized_tree.pop(0)
+            node.sample_value = int("".join(binary_str), 2)
+            log.info(node.sample_value)
+
+        return node
 
     @classmethod
     def create_tree(cls, nodes: List[HuffmanNode]) -> HuffmanNode:
@@ -264,16 +294,6 @@ class HuffmanEncoder:
             result.append(sample_to_code_dict[sample])
 
         return result
-
-    # @staticmethod
-    # def convert_codes_to_samples(codes: List[int],
-    #                              code_to_sample_dict: Dict[int, int]) -> List[int]:
-    #     """Decode a list of codes using a Huffman dictionnary"""
-    #     result = []
-    #     for code in codes:
-    #         result.append(code_to_sample_dict[code])
-
-    #     return result
 
     @staticmethod
     def create_prob_distribution(samples: List[Any]) -> Dict[int, float]:

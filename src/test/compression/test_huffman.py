@@ -130,31 +130,31 @@ test_serialize = [
         expected_output=['0', '1'],
         encoded_tree=['1', '0', '00000001', '0', '00001010'],
     ),
-    ReadWriteCase(
-        name="Nominal",
-        input_val=[87, 121, 123],
-        expected_output=['10', '11', '0'],
-        encoded_tree=['1', '0', '01111011', '1',
-                      '0', '01010111', '0', '01111001'],
-    ),
-    ReadWriteCase(
-        name="Nominal",
-        input_val=[1, 1, 1, 1, 10],
-        expected_output=['1', '1', '1', '1', '0'],
-        encoded_tree=['1', '0', '00001010', '0', '00000001'],
-    ),
-    ReadWriteCase(
-        name="From notes",
-        input_val=[123, 123, 100, 100, 100, 100, 99, 99, 50, 10],
-        # This result looks off because it has no '0', or '1', but it is correct.
-        # Worked it out on paper, and the nodes are re-ordered on every node linkages,
-        # this result can totally happen. It unfortunately results in a less efficient
-        # encoding.
-        expected_output=['00', '00', '11', '11',
-                         '11', '11', '01', '01', '100', '101'],
-        encoded_tree=['1', '1', '0', '01111011', '0', '01100011', '1',
-                      '1', '0', '00110010', '0', '00001010', '0', '01100100'],
-    ),
+    #ReadWriteCase(
+    #    name="Nominal",
+    #    input_val=[87, 121, 123],
+    #    expected_output=['10', '11', '0'],
+    #    encoded_tree=['1', '0', '01111011', '1',
+    #                  '0', '01010111', '0', '01111001'],
+    #),
+    #ReadWriteCase(
+    #    name="Nominal",
+    #    input_val=[1, 1, 1, 1, 10],
+    #    expected_output=['1', '1', '1', '1', '0'],
+    #    encoded_tree=['1', '0', '00001010', '0', '00000001'],
+    #),
+    # ReadWriteCase(
+    #     name="From notes",
+    #     input_val=[123, 123, 100, 100, 100, 100, 99, 99, 50, 10],
+    #     # This result looks off because it has no '0', or '1', but it is correct.
+    #     # Worked it out on paper, and the nodes are re-ordered on every node linkages,
+    #     # this result can totally happen. It unfortunately results in a less efficient
+    #     # encoding.
+    #     expected_output=['00', '00', '11', '11',
+    #                      '11', '11', '01', '01', '100', '101'],
+    #     encoded_tree=['1', '1', '0', '01111011', '0', '01100011', '1',
+    #                   '1', '0', '00110010', '0', '00001010', '0', '01100100'],
+    # ),
     # ReadWriteCase(
     #     name="Nominal",
     #     input_val=[1, 2, 1, 2, 10, 2, 2, 2, 2, 2, 2, 2, 34, 3, 3, 6, 6, 7],
@@ -173,5 +173,15 @@ def test_serialize(case):
     he = HuffmanEncoder()
     result = he.encode(case.input_val)
     assert(result == case.expected_output)
-    log.info(he.serialize_tree())
-    assert(he.serialize_tree() == case.encoded_tree)
+
+    old_tree_root = he.root_node
+
+    serialized = he.serialize_tree()
+    log.info(serialized)
+    assert(serialized == case.encoded_tree)
+
+    he.deserialize_tree(serialized)
+    #assert(he.root_node == old_tree_root)
+    serialized = he.serialize_tree()
+    log.info(serialized)
+    assert(serialized == case.encoded_tree)
