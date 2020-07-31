@@ -167,17 +167,34 @@ class HuffmanEncoder:
 
         return helper(self.root_node)
 
-    def deserialize_tree(self, serialized):
+    def tree_str_to_list(self, binary_string: str, padding: int):
+        """
+        Converts a string of 1 and 0s to a list which represent the tree like
+        so: ["1", "0", "1000000100000010", "0", ...].
+        I call the above representation of the tree a "huffman_list" below.
+        """
+        binary_list = list(binary_string[:-padding])
+        huffman_list = []
+
+        while len(binary_list) > 0:
+            if binary_list[0] == "1":
+                huffman_list.append(binary_list.pop(0))
+            if binary_list[0] == "0":
+                huffman_list.append(binary_list.pop(0))
+                sample = binary_list[:16]
+                binary_list = binary_list[16:]
+                huffman_list.append("".join(sample))
+
+        log.info(huffman_list)
+
+        return huffman_list
+
+    def deserialize_tree(self, serialized: List[str]):
         """
         Convert a list of 1 (indicating a child) and 0 (indicating a leaf)
         to a huffman tree.
         Set the current Huffman tree to this new tree.
         """
-        # For testing purposes, serialized can be passed as a string.
-        # This makes it easier to visualize what is going on under the hood.
-        if type(serialized) == str:
-            serialized = list(serialized)
-
         self.serialized_tree = serialized
 
         # Pop first 1 from the serialized string. It represents the root.
@@ -201,7 +218,7 @@ class HuffmanEncoder:
             binary_str = self.serialized_tree.pop(0)
             left_child = HuffmanNode()
             # Read as signed 2-byte integers
-            if binary_str[0] == 1:
+            if binary_str[0] == "1":
                 left_child.sample_value = - int(binary_str[1:], 2)
             else:
                 left_child.sample_value = int(binary_str, 2)
@@ -218,7 +235,7 @@ class HuffmanEncoder:
         elif next_val == "0":
             binary_str = self.serialized_tree.pop(0)
             right_child = HuffmanNode()
-            if binary_str[0] == 1:
+            if binary_str[0] == "1":
                 right_child.sample_value = - int(binary_str[1:], 2)
             else:
                 right_child.sample_value = int(binary_str, 2)

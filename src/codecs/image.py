@@ -346,7 +346,6 @@ class IMGFile(CmnMixin):
         with suppress(FileNotFoundError):
             os.remove(filename)
 
-        # TODO: write all at once for submission
         with open(filename, "wb") as f:
             f.write(struct.pack(f'{UINT}', self._width))
             f.write(struct.pack(f'{UINT}', self._height))
@@ -354,12 +353,9 @@ class IMGFile(CmnMixin):
             f.write(struct.pack(f'{UINT}', main_data_padding))
             f.write(struct.pack(f'{UINT}', tree_size))
             f.write(struct.pack(f'{UINT}', tree_padding))
-        log.debug(f"size 1: {os.path.getsize(filename)}")
 
-        with open(filename, "ab+") as f:
             f.write(tree_data_bytes)
 
-        with open(filename, "ab+") as f:
             f.write(encoded_main_data_bytes)
 
         self.bytes_size = os.path.getsize(filename)
@@ -386,15 +382,25 @@ class IMGFile(CmnMixin):
 
             data = f.read()
 
-            # Convert each byte to an integer
-            binary_list = []
-            for a in data:
-                binary_list.append('{0:08b}'.format(a))
+        # Convert each byte to a string binary number
+        tree_binary_list = []
+        for byte in tree_bytes:
+            tree_binary_list.append('{0:08b}'.format(byte))
 
-            data = "".join(binary_list)
+        tree_list = self.huffman.tree_str_to_list(
+            "".join(tree_binary_list), tree_padding)
 
-            data = str(data[:-main_data_padding])
-            self._encoded_main_data = data
+        self.huffman.deserialize_tree(tree_list)
+
+        # Convert each byte to a string binary number
+        main_data_binary_list = []
+        for byte in data:
+            main_data_binary_list.append('{0:08b}'.format(byte))
+
+        data = "".join(main_data_binary_list)
+
+        data = str(data[:-main_data_padding])
+        self._encoded_main_data = data
 
     def vector_to_layers(self, vector: List[int]) -> List[List[List[int]]]:
         """

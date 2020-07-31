@@ -120,7 +120,7 @@ I then found that the serialized tree represented the leaf values funily as the 
 
 **Possible bug**: I can't quite put my finger on it, but my test `test_serialize` shows me that there is something fishy in my serializer/deserializer. If I run into any issues reading the tree from file, I should definitely assume that this part is responsible.
 
-
+Indeed, when reading the serialized tree from file and attempting to deserialize it, negative signed integers were positive (for instance -94 was 32862). The error was due to me comparing the first char of the string to an integer and not a string... (`if string[0]== 1` instead of `if string[0]== "1"`). I made so many of these types of errors in this project, as well as many of by one erorrs. Unfortunately, they can sometimes be time consuming to debug.
 
 #### File format
 
