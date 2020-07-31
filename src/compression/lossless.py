@@ -155,8 +155,14 @@ class HuffmanEncoder:
                 serialized_tree += helper(node.children[1])
             else:
                 serialized_tree.append('0')
-                serialized_tree.append(
-                    "{0:08b}".format(int(node.sample_value)))
+                # Store the sample value as a signed 2-byte integer
+                if node.sample_value < 0:
+                    signed_int = "1"
+                    signed_int += "{0:016b}".format(int(node.sample_value))[1:]
+                    serialized_tree.append(signed_int)
+                else:
+                    serialized_tree.append(
+                        "{0:016b}".format(int(node.sample_value)))
             return serialized_tree
 
         return helper(self.root_node)
@@ -165,6 +171,7 @@ class HuffmanEncoder:
         """
         Convert a list of 1 (indicating a child) and 0 (indicating a leaf)
         to a huffman tree.
+        Set the current Huffman tree to this new tree.
         """
         # For testing purposes, serialized can be passed as a string.
         # This makes it easier to visualize what is going on under the hood.
@@ -193,7 +200,11 @@ class HuffmanEncoder:
         elif next_val == "0":
             binary_str = self.serialized_tree.pop(0)
             left_child = HuffmanNode()
-            left_child.sample_value = int("".join(binary_str), 2)
+            # Read as signed 2-byte integers
+            if binary_str[0] == 1:
+                left_child.sample_value = - int(binary_str[1:], 2)
+            else:
+                left_child.sample_value = int(binary_str, 2)
             node.children.append(left_child)
         else:
             raise Exception("It should be either a 1 or 0")
@@ -207,7 +218,10 @@ class HuffmanEncoder:
         elif next_val == "0":
             binary_str = self.serialized_tree.pop(0)
             right_child = HuffmanNode()
-            right_child.sample_value = int("".join(binary_str), 2)
+            if binary_str[0] == 1:
+                right_child.sample_value = - int(binary_str[1:], 2)
+            else:
+                right_child.sample_value = int(binary_str, 2)
             node.children.append(right_child)
         else:
             raise Exception("It should be either a 1 or 0")

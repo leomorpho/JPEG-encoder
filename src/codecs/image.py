@@ -352,7 +352,9 @@ class IMGFile(CmnMixin):
             f.write(struct.pack(f'{UINT}', tree_padding))
         log.debug(f"size 1: {os.path.getsize(filename)}")
 
+        log.info(tree_data)
         #with open(filename, "ab+") as f:
+        #    assert(False == True)
 
         with open(filename, "ab+") as f:
             f.write(encoded_main_data_bytes)

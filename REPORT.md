@@ -116,7 +116,9 @@ The huffman tree is serialized to a string. For every node which has children, a
 
 Serializing and deserializing the Huffman tree was quite a challenge. The deserialization the most difficult of the two. It was hard to test that it worked. I tested by first serializing (since I could easily look at my serializer result), then I deserialized it, deserialized it, and compared the two serialized strings, making sure that they were equal.
 
+I then found that the serialized tree represented the leaf values funily as the negative numbers had a minus sign preceding them. I had no prior experience working with bytes in python, so I had to do some research about how to deal with them. The leaves are stored as 2-byte signed integers. The 2-byte signed integer is formed from a 16-bit string (16 zeroes or ones). This quirk is due to how I serialize the Huffman tree. 
 
+**Possible bug**: I can't quite put my finger on it, but my test `test_serialize` shows me that there is something fishy in my serializer/deserializer. If I run into any issues reading the tree from file, I should definitely assume that this part is responsible.
 
 ## References
 

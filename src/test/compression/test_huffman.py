@@ -128,40 +128,40 @@ test_serialize = [
         name="Nominal",
         input_val=[1, 10],
         expected_output=['0', '1'],
-        encoded_tree=['1', '0', '00000001', '0', '00001010'],
+        encoded_tree=['1', '0', '0000000000000001', '0', '0000000000001010'],
     ),
     ReadWriteCase(
-        name="Nominal",
-        input_val=[87, 121, 123],
+        name="Large integers",
+        input_val=[31782, 1210, 123],
         expected_output=['10', '11', '0'],
-        encoded_tree=['1', '0', '01111011', '1',
-                      '0', '01010111', '0', '01111001'],
+        encoded_tree=['1', '0', '0000000001111011', '1',
+                      '0', '0111110000100110', '0', '0000010010111010'],
     ),
     ReadWriteCase(
-        name="Nominal",
-        input_val=[1, 1, 1, 1, 10],
+        name="Large negative integer",
+        input_val=[1, 1, 1, 1, -29931],
         expected_output=['1', '1', '1', '1', '0'],
-        encoded_tree=['1', '0', '00001010', '0', '00000001'],
+        encoded_tree=['1', '0', '1111010011101011', '0', '0000000000000001'],
     ),
     ReadWriteCase(
         name="From notes",
-        input_val=[123, 123, 100, 100, 100, 100, 99, 99, 50, 10],
+        input_val=[123, 123, 100, 100, 100, 100, 99, 99, -50, -10],
         # This result looks off because it has no '0', or '1', but it is correct.
         # Worked it out on paper, and the nodes are re-ordered on every node linkages,
         # this result can totally happen. It unfortunately results in a less efficient
         # encoding.
         expected_output=['00', '00', '11', '11',
                          '11', '11', '01', '01', '100', '101'],
-        encoded_tree=['1', '1', '0', '01111011', '0', '01100011', '1',
-                      '1', '0', '00110010', '0', '00001010', '0', '01100100'],
+        encoded_tree=['1', '1', '0', '0000000001111011', '0', '0000000001100011', '1',
+                      '1', '0', '1000000000110010', '0', '1000000000001010', '0', '0000000001100100'],
     ),
     ReadWriteCase(
         name="Nominal",
         input_val=[1, 2, 1, 2, 10, 2, 2, 2, 2, 2, 2, 2, 34, 3, 3, 6, 6, 7],
         expected_output=['1111', '0', '1111', '0', '1100', '0', '0', '0',
                          '0', '0', '0', '0', '1101', '100', '100', '101', '101', '1110'],
-        encoded_tree=['1', '0', '00000010', '1', '1', '0', '00000011', '0', '00000110', '1',
-                      '1', '0', '00001010', '0', '00100010', '1', '0', '00000111', '0', '00000001'],
+        encoded_tree=['1', '0', '0000000000000010', '1', '1', '0', '0000000000000011', '0', '0000000000000110', '1',
+                      '1', '0', '0000000000001010', '0', '0000000000100010', '1', '0', '0000000000000111', '0', '0000000000000001'],
     )
 ]
 
@@ -175,16 +175,18 @@ def test_serialize(case):
     result = he.encode(case.input_val)
     assert(result == case.expected_output)
 
-    old_tree_root = he.root_node
-
     serialized = he.serialize_tree()
     log.info(serialized)
     assert(serialized == case.encoded_tree)
+
+    # Discard current Huffman instantiation form tree
+    he.root_node = None
+    assert(he.root_node == None)
 
     he.deserialize_tree(serialized)
-    serialized = he.serialize_tree()
-    log.info(serialized)
-    assert(serialized == case.encoded_tree)
+    new_serialized = he.serialize_tree()
+    log.info(new_serialized)
+    assert(new_serialized == case.encoded_tree)
 
     # Re-encode with the deserialized tree
     result = he.encode(case.input_val)

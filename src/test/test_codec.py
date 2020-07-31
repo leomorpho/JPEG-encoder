@@ -87,6 +87,7 @@ def test_file():
 
 class EncodedData():
     """Represents a test case with input_val and expected expected_output"""
+
     def __init__(
             self,
             encoded_main_data,
@@ -95,6 +96,7 @@ class EncodedData():
         self.encoded_main_data = encoded_main_data
         self.main_data_padding = main_data_padding
         self.bytes_size = bytes_size
+
 
 encoded_main_data_cases = [
     EncodedData(
@@ -139,6 +141,7 @@ def test_read_write_simple(test_file, case):
     assert(im._main_data_padding == case.main_data_padding)
     assert(im._encoded_main_data == case.encoded_main_data)
     assert(im.bytes_size == case.bytes_size)
+
 
 full_image_test_case = [
     InputOutputCase(
