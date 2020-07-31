@@ -120,6 +120,21 @@ I then found that the serialized tree represented the leaf values funily as the 
 
 **Possible bug**: I can't quite put my finger on it, but my test `test_serialize` shows me that there is something fishy in my serializer/deserializer. If I run into any issues reading the tree from file, I should definitely assume that this part is responsible.
 
+
+
+#### File format
+
+| Field             | Description                                 | Size             |
+| ----------------- | ------------------------------------------- | ---------------- |
+| Width             | width of the image in blocks                | 4 byte           |
+| Height            | Height of the image in blocks               | 4 byte           |
+| Block size        | Size of the blocks (default is 8x8)         | 4 byte           |
+| Main data padding | How much padding in bytes the main data has | Variable (bytes) |
+| Tree size         | Size of the Huffman tree in bytes           | Variable (bytes) |
+| Tree padding      | How much padding in bytes the tree data has | Variable (bytes) |
+
+
+
 ## References
 
 * [Comparative data compression techniques and multi-compression results](https://iopscience.iop.org/article/10.1088/1757-899X/53/1/012081/pdf)

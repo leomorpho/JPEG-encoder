@@ -337,8 +337,11 @@ class IMGFile(CmnMixin):
 
         # Huffman tree
         serialized_tree = self.huffman.serialize_tree()
-        log.info(serialized_tree)
-        tree_data, tree_padding = self.pad_byte(serialized_tree)
+        padded_tree_str, tree_padding = self.pad_byte(
+            "".join(serialized_tree))
+
+        tree_data_bytes = self.str_to_byte_array(padded_tree_str)
+        tree_size = len(tree_data_bytes)
 
         with suppress(FileNotFoundError):
             os.remove(filename)
@@ -349,12 +352,12 @@ class IMGFile(CmnMixin):
             f.write(struct.pack(f'{UINT}', self._height))
             f.write(struct.pack(f'{UINT}', self._block_size))
             f.write(struct.pack(f'{UINT}', self._main_data_padding))
+            f.write(struct.pack(f'{UINT}', tree_size))
             f.write(struct.pack(f'{UINT}', tree_padding))
         log.debug(f"size 1: {os.path.getsize(filename)}")
 
-        log.info(tree_data)
-        #with open(filename, "ab+") as f:
-        #    assert(False == True)
+        with open(filename, "ab+") as f:
+            f.write(tree_data_bytes)
 
         with open(filename, "ab+") as f:
             f.write(encoded_main_data_bytes)
@@ -374,8 +377,12 @@ class IMGFile(CmnMixin):
                 f.read(BYTE4), unpack_type=UINT)
             self._main_data_padding: int = self.unpack(
                 f.read(BYTE4), unpack_type=UINT)
+            tree_size: int = self.unpack(
+                f.read(BYTE4), unpack_type=UINT)
             tree_padding: int = self.unpack(
                 f.read(BYTE4), unpack_type=UINT)
+
+            tree_bytes = f.read(tree_size)
 
             data = f.read()
 
@@ -471,7 +478,7 @@ class IMGFile(CmnMixin):
         return vector
 
     @staticmethod
-    def pad_byte(data):
+    def pad_byte(data: str) -> (str, int):
         """
         The data is stored as bytes. The last bits of the data probably will not
         equal to 8 bits, and must therefore be padded to create a full byte.
