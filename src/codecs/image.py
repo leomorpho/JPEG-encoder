@@ -330,7 +330,7 @@ class IMGFile(CmnMixin):
         """
         Write the encoded data to file alongside the huffman tree.
         """
-        self._encoded_main_data, self._main_data_padding = self.pad_byte(
+        self._encoded_main_data, main_data_padding = self.pad_byte(
             self._encoded_main_data)
         encoded_main_data_bytes = self.str_to_byte_array(
             self._encoded_main_data)
@@ -351,7 +351,7 @@ class IMGFile(CmnMixin):
             f.write(struct.pack(f'{UINT}', self._width))
             f.write(struct.pack(f'{UINT}', self._height))
             f.write(struct.pack(f'{UINT}', self._block_size))
-            f.write(struct.pack(f'{UINT}', self._main_data_padding))
+            f.write(struct.pack(f'{UINT}', main_data_padding))
             f.write(struct.pack(f'{UINT}', tree_size))
             f.write(struct.pack(f'{UINT}', tree_padding))
         log.debug(f"size 1: {os.path.getsize(filename)}")
@@ -375,7 +375,7 @@ class IMGFile(CmnMixin):
             self._height: int = self.unpack(f.read(BYTE4), unpack_type=UINT)
             self._block_size: int = self.unpack(
                 f.read(BYTE4), unpack_type=UINT)
-            self._main_data_padding: int = self.unpack(
+            main_data_padding: int = self.unpack(
                 f.read(BYTE4), unpack_type=UINT)
             tree_size: int = self.unpack(
                 f.read(BYTE4), unpack_type=UINT)
@@ -393,7 +393,7 @@ class IMGFile(CmnMixin):
 
             data = "".join(binary_list)
 
-            data = str(data[:-self._main_data_padding])
+            data = str(data[:-main_data_padding])
             self._encoded_main_data = data
 
     def vector_to_layers(self, vector: List[int]) -> List[List[List[int]]]:
