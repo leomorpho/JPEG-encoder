@@ -182,19 +182,16 @@ class HuffmanEncoder:
         """
         Recursive helper function to expand a a string of 1 and 0 to a Huffman tree
         """
-        log.info(self.serialized_tree)
         node = HuffmanNode()
         node.children = []
 
         next_val = self.serialized_tree.pop(0)
-        log.info(next_val)
         if next_val == "1":
             left_child = self.expand()
             node.children.append(left_child)
 
         elif next_val == "0":
             binary_str = self.serialized_tree.pop(0)
-            log.info(binary_str)
             left_child = HuffmanNode()
             left_child.sample_value = int("".join(binary_str), 2)
             node.children.append(left_child)
@@ -203,14 +200,12 @@ class HuffmanEncoder:
 
         # Do the same for the other side
         next_val = self.serialized_tree.pop(0)
-        log.info(next_val)
         if next_val == "1":
             right_child = self.expand()
             node.children.append(right_child)
 
         elif next_val == "0":
             binary_str = self.serialized_tree.pop(0)
-            log.info(binary_str)
             right_child = HuffmanNode()
             right_child.sample_value = int("".join(binary_str), 2)
             node.children.append(right_child)

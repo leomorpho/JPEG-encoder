@@ -326,33 +326,33 @@ class IMGFile(CmnMixin):
 
         return layers
 
-    def pad_main_data(self):
-        """
-        The data is stored as bytes. The last bits of the data probably will not
-        equal to 8 bits, and must therefore be padded to create a full byte.
-        """
-        self._main_data_padding = 8 - len(self._encoded_main_data) % 8
-
-        for i in range(self._main_data_padding):
-            self._encoded_main_data += "0"
-
     def write(self, filename):
         """
         Write the encoded data to file alongside the huffman tree.
         """
-        self.pad_main_data()
+        self._encoded_main_data, self._main_data_padding = self.pad_byte(
+            self._encoded_main_data)
         encoded_main_data_bytes = self.str_to_byte_array(
             self._encoded_main_data)
+
+        # Huffman tree
+        serialized_tree = self.huffman.serialize_tree()
+        log.info(serialized_tree)
+        tree_data, tree_padding = self.pad_byte(serialized_tree)
 
         with suppress(FileNotFoundError):
             os.remove(filename)
 
+        # TODO: write all at once for submission
         with open(filename, "wb") as f:
             f.write(struct.pack(f'{UINT}', self._width))
             f.write(struct.pack(f'{UINT}', self._height))
             f.write(struct.pack(f'{UINT}', self._block_size))
             f.write(struct.pack(f'{UINT}', self._main_data_padding))
+            f.write(struct.pack(f'{UINT}', tree_padding))
         log.debug(f"size 1: {os.path.getsize(filename)}")
+
+        #with open(filename, "ab+") as f:
 
         with open(filename, "ab+") as f:
             f.write(encoded_main_data_bytes)
@@ -371,6 +371,8 @@ class IMGFile(CmnMixin):
             self._block_size: int = self.unpack(
                 f.read(BYTE4), unpack_type=UINT)
             self._main_data_padding: int = self.unpack(
+                f.read(BYTE4), unpack_type=UINT)
+            tree_padding: int = self.unpack(
                 f.read(BYTE4), unpack_type=UINT)
 
             data = f.read()
@@ -465,3 +467,16 @@ class IMGFile(CmnMixin):
                     for item in block:
                         vector.append(item)
         return vector
+
+    @staticmethod
+    def pad_byte(data):
+        """
+        The data is stored as bytes. The last bits of the data probably will not
+        equal to 8 bits, and must therefore be padded to create a full byte.
+        """
+        padding = 8 - len(data) % 8
+
+        for i in range(padding):
+            data += "0"
+
+        return data, padding

@@ -10,7 +10,7 @@ log.setLevel(logging.DEBUG)
 class InputOutputCase():
     """Represents a test case with input_val and expected expected_output"""
 
-    def __init__(self, name, A, B):
+    def __init__(self, name, A, B=None):
         self.name = name
         self.A = A
         self.B = B
@@ -115,6 +115,7 @@ encoded_main_data_cases = [
 ]
 
 
+@pytest.mark.skip(reason="now needs a true huffman tree to write")
 @pytest.mark.parametrize("case", encoded_main_data_cases)
 def test_read_write_simple(test_file, case):
     im = IMGFile()
@@ -168,7 +169,6 @@ full_image_test_case = [
                 ]
             ]
         ],
-        B=""
     )
 ]
 
@@ -185,7 +185,7 @@ def test_encode_decode(case, test_file):
 
 
 @pytest.mark.parametrize("case", full_image_test_case)
-def test_read_write_full(case, test_file):
+def test_write_read_twice(case, test_file):
     im = IMGFile()
     filename = test_file
 
@@ -193,7 +193,30 @@ def test_read_write_full(case, test_file):
     im.write(filename)
     im.read(filename)
     vector = im.decode()
+
     log.debug(im._encoded_main_data)
+    assert(case.A == vector)
+
+    assert(im._width is not None)
+    assert(type(im._width) is int)
+
+    assert(im._height is not None)
+    assert(type(im._height) is int)
+
+    assert(im._block_size is not None)
+    assert(type(im._block_size) == int)
+
+    assert(im._main_data_padding is not None)
+    assert(type(im._main_data_padding) is int)
+
+    assert(im._encoded_main_data is not None)
+    assert(type(im._encoded_main_data) is str)
+
+    im.encode(vector)
+    im.write(filename)
+    im.read(filename)
+    vector = im.decode()
+
     assert(case.A == vector)
 
     assert(im._width is not None)
