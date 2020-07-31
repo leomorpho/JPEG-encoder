@@ -118,7 +118,6 @@ class HuffmanEncoder:
     def decode(self, data: str):
         if type(data) == list:
             data = "".join(data)
-        # TODO: create dictionnary by reading huffman tree from file
         decoded = []
         current_node = self.root_node
 

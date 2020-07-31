@@ -269,24 +269,30 @@ class IMGFile(CmnMixin):
 
         :attr image_data: the main image data
         """
-        self._Y = []
-        self._Cb = []
-        self._Cr = []
-
-        self._signature: str = None
         self._width: int = None
         self._height: int = None
         self._block_size: int = None
-        self._tree_byte_length: int = None
-        self._main_data_byte_length: int = None
-
-        self._tree_data: List[int] = None
-        self._image_data: List[int] = None
+        self._matrix = None
 
         self.huffman = HuffmanEncoder()
 
         # Keep track of size of file on disk
         self.bytes_size = None
+
+    @property
+    def matrix(self):
+        """Get the matrix"""
+        return self._matrix
+
+    @property
+    def width(self):
+        """Get width of image"""
+        return self._image_header._width
+
+    @property
+    def height(self):
+        """Get height of image"""
+        return self._image_header._height
 
     def encode(self, layers: List[List[int]]):
         """
@@ -402,6 +408,8 @@ class IMGFile(CmnMixin):
         data = str(data[:-main_data_padding])
         self._encoded_main_data = data
 
+        self._matrix = self.decode()
+
     def vector_to_layers(self, vector: List[int]) -> List[List[List[int]]]:
         """
         Used for decompression and reading form disk.
@@ -495,3 +503,4 @@ class IMGFile(CmnMixin):
             data += "0"
 
         return data, padding
+

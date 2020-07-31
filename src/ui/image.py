@@ -2,9 +2,11 @@ from typing import List
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-from src.codecs.image import BmpFile
+from src.codecs.image import BmpFile, IMGFile
 from src.compression.lossy import JPEG
 
+img_format = "img"
+bmp_format = "bmp"
 
 class Image(QWidget):
     def __init__(self, path, compression=None, *args, **kwargs):
@@ -13,12 +15,24 @@ class Image(QWidget):
         """
         super().__init__(*args, **kwargs)
 
-        self.bmp_image = BmpFile(path)
+        file_extension = self.image_file_path.split(".")[-1]
+        if file_extension.lower()  == img_format:
+            self.img_image = BmpFile(path)
+            self.matrix = self.img_image.matrix
+            self.width = self.img_image.width
+            self.height = self.img_image.height
+            self.bytes_size = self.img_image.bytes_size
+        elif file_extension.lower()  == bmp_format:
+            self.bmp_image = BmpFile(path)
+            self.matrix = self.bmp_image.matrix
+            self.width = self.bmp_image.width
+            self.height = self.bmp_image.height
+            self.bytes_size = self.bmp_image.bytes_size
+        else:
+            raise NotImplementedError("Filetype not supported")
+
+
         self.path = path
-        self.matrix = self.bmp_image.matrix
-        self.width = self.bmp_image.width
-        self.height = self.bmp_image.height
-        self.bytes_size = self.bmp_image.bytes_size
 
         if compression:
             self.matrix, self.bytes_size = JPEG(self.matrix, compression)

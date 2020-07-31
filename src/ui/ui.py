@@ -11,6 +11,8 @@ from src.ui.image import Image
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
 
+img_format = "img"
+bmp_format = "bmp"
 
 class MainWindowQ1(QMainWindow):
     def __init__(self):
@@ -57,7 +59,6 @@ class MainWindowQ1(QMainWindow):
             # Display image with info pane
             vbox = QVBoxLayout(self)
 
-            # The selected file is stored in fileName
             self.audio_file_path = dialog.selectedFiles()[0]
             wav_file = WavFile(self.audio_file_path)
 
@@ -109,21 +110,21 @@ class MainWindowQ2(QMainWindow):
         exit_action.triggered.connect(self.close)
         self.file_menu.addAction(exit_action)
 
-        # Change JPEG levels
-        # 90%
-        ninety = QAction("90%", self)
-        ninety.setStatusTip("90% compression")
-        ninety.triggered.connect(self.compress_90)
+        # # Change JPEG levels
+        # # 90%
+        # ninety = QAction("90%", self)
+        # ninety.setStatusTip("90% compression")
+        # ninety.triggered.connect(self.compress_90)
 
-        # 50%
-        fifty=QAction("50%", self)
-        fifty.setStatusTip("50% compression")
-        fifty.triggered.connect(self.compress_50)
+        # # 50%
+        # fifty=QAction("50%", self)
+        # fifty.setStatusTip("50% compression")
+        # fifty.triggered.connect(self.compress_50)
 
-        # 10%
-        ten=QAction("10%", self)
-        ten.setStatusTip("10% compression")
-        ten.triggered.connect(self.compress_10)
+        # # 10%
+        # ten=QAction("10%", self)
+        # ten.setStatusTip("10% compression")
+        # ten.triggered.connect(self.compress_10)
 
         # # Toolbar
         # self.toolbar=self.addToolBar('90%')
@@ -134,7 +135,7 @@ class MainWindowQ2(QMainWindow):
         # self.toolbar.addAction(ten)
 
         # Window dimensions
-        geometry=qApp.desktop().availableGeometry(self)
+        geometry = qApp.desktop().availableGeometry(self)
 
         if not self.image_file_path:
             self.openFileDialogueBox()
@@ -144,26 +145,34 @@ class MainWindowQ2(QMainWindow):
         # self.showMaximized()
 
     def openFileDialogueBox(self):
-        dialog=QFileDialog(self)
+        dialog = QFileDialog(self)
         dialog.setFileMode(QFileDialog.ExistingFile)
         dialog.setViewMode(QFileDialog.List)
         if dialog.exec_():
             # Display image with info pane
-            hbox=QHBoxLayout(self)
+            hbox = QHBoxLayout(self)
 
-            # The selected file is stored in fileName
-            self.image_file_path=dialog.selectedFiles()[0]
+            self.image_file_path = dialog.selectedFiles()[0]
 
-            self.original_image_widget = Image(self.image_file_path)
-            self.compressed_image_widget = Image(self.image_file_path, compression=50)
-            print(self.original_image_widget.bytes_size)
-            print(self.compressed_image_widget.bytes_size)
+            file_extension = self.image_file_path.split(".")[-1]
+
+            if file_extension.lower()  == img_format:
+                image_widget = Image(self.image_file_path)
+                hbox.addWidget(image_widget)
+            elif file_extension.lower()  == bmp_format:
+                original_image_widget = Image(self.image_file_path)
+                compressed_image_widget = Image(
+                    self.image_file_path, compression=50)
+                print(original_image_widget.bytes_size)
+                print(compressed_image_widget.bytes_size)
+                hbox.addWidget(original_image_widget)
+                hbox.addWidget(compressed_image_widget)
+            else:
+                raise NotImplementedError("Filetype not supported")
 
 
-            hbox.addWidget(self.original_image_widget)
-            hbox.addWidget(self.compressed_image_widget)
 
-            central_widget=QWidget()
+            central_widget = QWidget()
             central_widget.setLayout(hbox)
             self.setCentralWidget(central_widget)
 
