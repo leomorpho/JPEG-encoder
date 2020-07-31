@@ -5,6 +5,7 @@ import logging
 import os
 from contextlib import suppress
 from src.compression.lossless import HuffmanEncoder
+from src.compression import lossy
 
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
@@ -287,12 +288,12 @@ class IMGFile(CmnMixin):
     @property
     def width(self):
         """Get width of image"""
-        return self._image_header._width
+        return self._width
 
     @property
     def height(self):
         """Get height of image"""
-        return self._image_header._height
+        return self._height
 
     def encode(self, layers: List[List[int]]):
         """
@@ -318,17 +319,10 @@ class IMGFile(CmnMixin):
         """
         Read file before decoding it
         """
-        # Read header to get width, height
-        # if not hasattr(self, '_main_data_num_bytes'):
-        #     self.read(filename)
-
         decoded_str = self.huffman.decode(self._encoded_main_data)
-        # assert(self._non_encoded_main_data == decoded_str)
 
         # Reassemble layers from one-dimensional vector
         layers = self.vector_to_layers(decoded_str)
-
-        # assert(self._encoded_main_data == encoded_str)
 
         return layers
 
@@ -408,7 +402,10 @@ class IMGFile(CmnMixin):
         data = str(data[:-main_data_padding])
         self._encoded_main_data = data
 
-        self._matrix = self.decode()
+        vector = self.decode()
+
+        # TODO: refactor if time permits. API is quite ugly here.
+        self._matrix = lossy.join_image_layers(vector)
 
     def vector_to_layers(self, vector: List[int]) -> List[List[List[int]]]:
         """

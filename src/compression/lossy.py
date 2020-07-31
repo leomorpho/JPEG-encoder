@@ -4,15 +4,13 @@ import sys
 from src.compression.dct import dct_forward, dct_inverse
 from src.compression.quantization import quantize, dequantize
 from src.compression.zigzag import zigzag, un_zigzag
-from src.codecs.image import BmpFile, IMGFile
+from src.codecs import image
 from src.compression.lossless import HuffmanEncoder
 
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
 
-# TODO: implement JPEG
 # TODO: implement GMM
-OUTPUT_FILE = "output.img"
 
 JPEG_SUPPORTED_ENCODING_FORMATS = {"bmp"}
 
@@ -21,7 +19,7 @@ def downsample(image: List[List[List[int]]]):
     pass
 
 
-def JPEG(original_image: List[List[List[int]]], compression_lvl=90) -> List[List[List[int]]]:
+def JPEG(original_image: List[List[List[int]]], compression_lvl, path) -> List[List[List[int]]]:
     """Encode in JPEG-like format and return the decoded image
     """
     he = HuffmanEncoder()
@@ -62,17 +60,18 @@ def JPEG(original_image: List[List[List[int]]], compression_lvl=90) -> List[List
         layers[i_layer] = block_join_layer(blocked_layer)
         layers_zigzagged.append(blocked_layer_zigzagged)
 
-    im = IMGFile()
+    im = image.IMGFile()
     im.encode(layers_zigzagged)
-    im.write(OUTPUT_FILE)
-    im.read(OUTPUT_FILE)
+    filepath = path.split(".")[0] + ".img"
+    im.write(filepath)
+    im.read(filepath)
     decoded_layers_zigzagged = im.decode()
 
     assert(layers_zigzagged == decoded_layers_zigzagged)
 
-    image: List[List[List[int]]] = join_image_layers(layers)
+    final_image: List[List[List[int]]] = join_image_layers(layers)
 
-    return image, im.bytes_size
+    return final_image, im.bytes_size
 
 
 def separate_image_layers(image: List[List[List[int]]]) -> List[List[List[int]]]:

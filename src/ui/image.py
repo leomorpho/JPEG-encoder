@@ -15,9 +15,10 @@ class Image(QWidget):
         """
         super().__init__(*args, **kwargs)
 
-        file_extension = self.image_file_path.split(".")[-1]
+        file_extension = path.split(".")[-1]
         if file_extension.lower()  == img_format:
-            self.img_image = BmpFile(path)
+            self.img_image = IMGFile()
+            self.img_image.read(path)
             self.matrix = self.img_image.matrix
             self.width = self.img_image.width
             self.height = self.img_image.height
@@ -35,7 +36,7 @@ class Image(QWidget):
         self.path = path
 
         if compression:
-            self.matrix, self.bytes_size = JPEG(self.matrix, compression)
+            self.matrix, self.bytes_size = JPEG(self.matrix, compression, path)
 
         self.setMinimumSize(int(self.width), int(self.height))
 

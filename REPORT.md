@@ -133,7 +133,7 @@ Indeed, when reading the serialized tree from file and attempting to deserialize
 | Tree size         | Size of the Huffman tree in bytes           | Variable (bytes) |
 | Tree padding      | How much padding in bytes the tree data has | Variable (bytes) |
 
-
+There are instances in which I thought my API was confusing. If I had time, I would have refactored it.
 
 ## References
 
