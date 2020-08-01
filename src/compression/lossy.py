@@ -77,7 +77,7 @@ def JPEG(original_image: List[List[List[int]]], compression_lvl, path) -> List[L
     with open('jpeg.json', "w") as f:
         f.write(json.dumps(final_image))
 
-    return final_image, im.bytes_size
+    return read_JPEG(layers_zigzagged), im.bytes_size
 
 
 def read_JPEG(layers):

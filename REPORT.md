@@ -141,6 +141,12 @@ There are instances in which I thought my API was confusing. If I had time, I wo
 
 The current implementation does not have run-length coding.
 
+#### Reading from file
+
+This was quite a challenging part. I think not having refactored my API made it more difficult. After much struggle, I succesfully got the image (or rather part of it) to show:
+
+<img src="REPORT.assets/Screen%20Shot%202020-08-01%20at%204.14.35%20PM.png" alt="Example" width="300" height="100">
+
 ## References
 
 * [Comparative data compression techniques and multi-compression results](https://iopscience.iop.org/article/10.1088/1757-899X/53/1/012081/pdf)
