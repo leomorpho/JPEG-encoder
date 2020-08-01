@@ -29,7 +29,7 @@ From my research online, Huffman generally compresses at 1.5:1 and LZW at 5:1. M
 
 The following implementation is an attempt at a simplified version of JPEG. It is simplified in that it supports only the BMP file specified within the assignment. It currently does not work perfectly, with the quality of the compressed image being much lower than expected. I was unable to debug this part, as the whole project was massive and took me about 60h and 4800 lines of code.
 
-
+The color layers was not downsampled.
 
 The following steps were implemented:
 
@@ -135,9 +135,16 @@ Indeed, when reading the serialized tree from file and attempting to deserialize
 
 There are instances in which I thought my API was confusing. If I had time, I would have refactored it.
 
+
+
+#### Run-length coding
+
+The current implementation does not have run-length coding.
+
 ## References
 
 * [Comparative data compression techniques and multi-compression results](https://iopscience.iop.org/article/10.1088/1757-899X/53/1/012081/pdf)
 * [Cornell University: JPEG](http://pi.math.cornell.edu/~web6140/TopTenAlgorithms/JPEG.html)
 * [The JPEG image code format](https://www.massey.ac.nz/~mjjohnso/notes/59731/presentations/jpeg.pdf)
 * [Wikipedia JPEG](https://en.wikipedia.org/wiki/JPEG#Encoding)
+* [UC Davies](https://www.ece.ucdavis.edu/cerl/reliablejpeg/compression/)

@@ -19,7 +19,8 @@ class Image(QWidget):
         if file_extension.lower()  == img_format:
             self.img_image = IMGFile()
             self.img_image.read(path)
-            self.matrix = self.img_image.matrix
+            # TODO: image should be matrix (just naming convention)
+            self.matrix = self.img_image.get_matrix()
             self.width = self.img_image.width
             self.height = self.img_image.height
             self.bytes_size = self.img_image.bytes_size

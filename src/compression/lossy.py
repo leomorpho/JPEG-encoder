@@ -6,6 +6,8 @@ from src.compression.quantization import quantize, dequantize
 from src.compression.zigzag import zigzag, un_zigzag
 from src.codecs import image
 from src.compression.lossless import HuffmanEncoder
+# TODO remove json
+import json
 
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
@@ -66,12 +68,20 @@ def JPEG(original_image: List[List[List[int]]], compression_lvl, path) -> List[L
     im.write(filepath)
     im.read(filepath)
     decoded_layers_zigzagged = im.decode()
+    # TODO: It't not the image written to file that is displayed rn,
+    # it's the processed one still in memory
 
     assert(layers_zigzagged == decoded_layers_zigzagged)
 
     final_image: List[List[List[int]]] = join_image_layers(layers)
+    with open('jpeg.json', "w") as f:
+        f.write(json.dumps(final_image))
 
     return final_image, im.bytes_size
+
+def read_JPEG(layers_zigzagged):
+    # The zizagged
+    pass
 
 
 def separate_image_layers(image: List[List[List[int]]]) -> List[List[List[int]]]:

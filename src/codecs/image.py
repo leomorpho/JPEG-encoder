@@ -6,6 +6,8 @@ import os
 from contextlib import suppress
 from src.compression.lossless import HuffmanEncoder
 from src.compression import lossy
+# TODO: remove json
+import json
 
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
@@ -405,7 +407,16 @@ class IMGFile(CmnMixin):
         vector = self.decode()
 
         # TODO: refactor if time permits. API is quite ugly here.
-        self._matrix = lossy.join_image_layers(vector)
+        self.image = lossy.join_image_layers(vector)
+
+    def get_matrix(self):
+        vector = self.decode()
+        final_image: List[List[List[int]]] = lossy.join_image_layers(layers)
+        with open('jpeg.json', "w") as f:
+            f.write(json.dumps(final_image))
+
+        return final_image
+
 
     def vector_to_layers(self, vector: List[int]) -> List[List[List[int]]]:
         """
