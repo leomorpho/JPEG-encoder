@@ -79,9 +79,40 @@ def JPEG(original_image: List[List[List[int]]], compression_lvl, path) -> List[L
 
     return final_image, im.bytes_size
 
-def read_JPEG(layers_zigzagged):
-    # The zizagged
-    pass
+
+def read_JPEG(layers):
+    """
+    Layers start zigzagged
+    """
+    decompressed_layers = []
+
+    # Make new copy for JPEG version
+    for i_layer, layer in enumerate(layers):
+        blocked_layer = []
+        for i_row, row in enumerate(layer):
+            decompressed_row = []
+            for i_vector, vector in enumerate(row):
+                # Decode
+                block = un_zigzag(vector)
+                block = dequantize(block, compression_lvl=90)
+                block = dct_inverse(block)
+                # Update block in row
+                decompressed_row.append(block)
+            blocked_layer.append(decompressed_row)
+        decompressed_layer = block_join_layer(blocked_layer)
+        decompressed_layers.append(decompressed_layer)
+
+    # Should be split in layers
+    assert(decompressed_layers[0])
+    assert(decompressed_layers[1])
+    assert(decompressed_layers[2])
+
+    final_image = join_image_layers(decompressed_layers)
+    with open('read.json', "w") as f:
+        f.write(json.dumps(final_image))
+
+    return final_image
+
 
 
 def separate_image_layers(image: List[List[List[int]]]) -> List[List[List[int]]]:

@@ -348,6 +348,7 @@ class IMGFile(CmnMixin):
         with suppress(FileNotFoundError):
             os.remove(filename)
 
+        # TODO: Need to write compression level to disk
         with open(filename, "wb") as f:
             f.write(struct.pack(f'{UINT}', self._width))
             f.write(struct.pack(f'{UINT}', self._height))
@@ -407,13 +408,10 @@ class IMGFile(CmnMixin):
         vector = self.decode()
 
         # TODO: refactor if time permits. API is quite ugly here.
-        self.image = lossy.join_image_layers(vector)
+        self.image = lossy.read_JPEG(vector)
 
     def get_matrix(self):
-        vector = self.decode()
-        final_image: List[List[List[int]]] = lossy.join_image_layers(layers)
-        with open('jpeg.json', "w") as f:
-            f.write(json.dumps(final_image))
+        final_image = self.image
 
         return final_image
 
