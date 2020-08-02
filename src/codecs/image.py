@@ -275,7 +275,6 @@ class IMGFile(CmnMixin):
         self._width: int = None
         self._height: int = None
         self._block_size: int = None
-        self._matrix = None
 
         self.huffman = HuffmanEncoder()
 
@@ -283,19 +282,22 @@ class IMGFile(CmnMixin):
         self.bytes_size = None
 
     @property
-    def matrix(self):
-        """Get the matrix"""
-        return self._matrix
-
-    @property
     def width(self):
         """Get width of image"""
         return self._width
+
+    @width.setter
+    def width(self, value):
+        self._width = value
 
     @property
     def height(self):
         """Get height of image"""
         return self._height
+
+    @height.setter
+    def height(self, value):
+        self._height = value
 
     def encode(self, layers: List[List[int]]):
         """
@@ -305,8 +307,7 @@ class IMGFile(CmnMixin):
             [[123, 122, ..., 124], ..., [231, 123, ..., 125]]
         """
         # Save dimensions for later decompression
-        self._width = len(layers[0][0])
-        self._height = len(layers[0])
+        self._width_in_cols = len(layers[0][0])
         self._block_size = len(layers[0][0][0])
 
         # Make one vector out of all values
@@ -348,11 +349,15 @@ class IMGFile(CmnMixin):
         with suppress(FileNotFoundError):
             os.remove(filename)
 
+        print("To file " + str(self._width))
+        print("To file " + str(self._height))
+
         # TODO: Need to write compression level to disk
         with open(filename, "wb") as f:
             f.write(struct.pack(f'{UINT}', self._width))
             f.write(struct.pack(f'{UINT}', self._height))
             f.write(struct.pack(f'{UINT}', self._block_size))
+            f.write(struct.pack(f'{UINT}', self._width_in_cols))
             f.write(struct.pack(f'{UINT}', main_data_padding))
             f.write(struct.pack(f'{UINT}', tree_size))
             f.write(struct.pack(f'{UINT}', tree_padding))
@@ -365,6 +370,14 @@ class IMGFile(CmnMixin):
         log.debug(len(encoded_main_data_bytes))
         log.debug(f"size 2: {os.path.getsize(filename)}")
 
+        # Reset data to make sure everything is read from file.
+        self._width = 0
+        self._height = 0
+        self._block_size = 0
+        self._non_encoded_main_data = None
+        self._encoded_main_data = None
+        self.huffman.root_node = None
+
     def read(self, filename):
         """
         Read the entire IMG file
@@ -373,6 +386,8 @@ class IMGFile(CmnMixin):
             self._width: int = self.unpack(f.read(BYTE4), unpack_type=UINT)
             self._height: int = self.unpack(f.read(BYTE4), unpack_type=UINT)
             self._block_size: int = self.unpack(
+                f.read(BYTE4), unpack_type=UINT)
+            self._width_in_cols: int = self.unpack(
                 f.read(BYTE4), unpack_type=UINT)
             main_data_padding: int = self.unpack(
                 f.read(BYTE4), unpack_type=UINT)
@@ -384,6 +399,8 @@ class IMGFile(CmnMixin):
             tree_bytes = f.read(tree_size)
 
             data = f.read()
+            print("From file " + str(self._width))
+            print("From file " + str(self._height))
 
         # Convert each byte to a string binary number
         tree_binary_list = []
@@ -404,17 +421,6 @@ class IMGFile(CmnMixin):
 
         data = str(data[:-main_data_padding])
         self._encoded_main_data = data
-
-        vector = self.decode()
-
-        # TODO: refactor if time permits. API is quite ugly here.
-        self.image = lossy.read_JPEG(vector)
-
-    def get_matrix(self):
-        final_image = self.image
-
-        return final_image
-
 
     def vector_to_layers(self, vector: List[int]) -> List[List[List[int]]]:
         """
@@ -445,7 +451,7 @@ class IMGFile(CmnMixin):
         row = []
         for i in vector:
             row.append(i)
-            if len(row) == self._width * self._block_size:
+            if len(row) == self._width_in_cols * self._block_size:
                 layer.append(self.subdivide_row(row))
                 row = []
 

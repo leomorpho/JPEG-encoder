@@ -3,10 +3,13 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from src.codecs.image import BmpFile, IMGFile
-from src.compression.lossy import JPEG
+from src.compression.lossy import JPEG, read_JPEG
+# TODO: remove json from everywhere
+import json
 
 img_format = "img"
 bmp_format = "bmp"
+
 
 class Image(QWidget):
     def __init__(self, path, compression=None, *args, **kwargs):
@@ -16,28 +19,35 @@ class Image(QWidget):
         super().__init__(*args, **kwargs)
 
         file_extension = path.split(".")[-1]
-        if file_extension.lower()  == img_format:
-            self.img_image = IMGFile()
-            self.img_image.read(path)
-            # TODO: image should be matrix (just naming convention)
-            self.matrix = self.img_image.get_matrix()
-            self.width = self.img_image.width
-            self.height = self.img_image.height
-            self.bytes_size = self.img_image.bytes_size
-        elif file_extension.lower()  == bmp_format:
+        if file_extension.lower() == img_format:
+            img = IMGFile()
+            img.read(path)
+            decoded = img.decode()
+            self.matrix = read_JPEG(img.decode())
+            with open("second.json", "w") as f:
+                f.write(json.dumps(self.matrix))
+            self.width = img.width
+            self.height = img.height
+            self.bytes_size = img.bytes_size
+            print(self.width)
+            print(self.height)
+        elif file_extension.lower() == bmp_format:
             self.bmp_image = BmpFile(path)
             self.matrix = self.bmp_image.matrix
             self.width = self.bmp_image.width
             self.height = self.bmp_image.height
             self.bytes_size = self.bmp_image.bytes_size
+
+            if compression:
+                print("compressed:")
+                self.matrix, self.bytes_size = JPEG(
+                    self.matrix, compression, path, self.width, self.height)
+                print(self.width)
+                print(self.height)
         else:
             raise NotImplementedError("Filetype not supported")
 
-
         self.path = path
-
-        if compression:
-            self.matrix, self.bytes_size = JPEG(self.matrix, compression, path)
 
         self.setMinimumSize(int(self.width), int(self.height))
 

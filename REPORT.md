@@ -102,7 +102,9 @@ Reapplying quantization for 90% quality yields a result which appears to be much
 
 ![Screen Shot 2020-07-22 at 3.42.17 PM](REPORT.assets/Screen%20Shot%202020-07-22%20at%203.42.17%20PM.png)
 
+Nearing the end of my project, I found and fixed some bugs. The great news was that my image finally improved to a quality I would expect for 90%!
 
+![Screen Shot 2020-08-01 at 6.02.06 PM](REPORT.assets/Screen%20Shot%202020-08-01%20at%206.02.06%20PM.png)
 
 ### File size issues
 
@@ -146,6 +148,14 @@ The current implementation does not have run-length coding.
 This was quite a challenging part. I think not having refactored my API made it more difficult. After much struggle, I succesfully got the image (or rather part of it) to show:
 
 <img src="REPORT.assets/Screen%20Shot%202020-08-01%20at%204.14.35%20PM.png" alt="Example" width="300" height="100">
+
+Eventually, I figured it out:
+
+<img src="REPORT.assets/Screen%20Shot%202020-08-01%20at%206.04.46%20PM.png" alt="Example" width="500">
+
+#### Final result
+
+The colors were affected quite a bit by the compression. The yellows have turned to greenish yellows. I wonder why.
 
 ## References
 
