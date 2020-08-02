@@ -141,11 +141,29 @@ class MainWindowQ2(QMainWindow):
                 self.original_image_widget = Image(self.image_file_path)
                 self.compressed_image_widget = Image(
                     self.image_file_path, compression=50)
-                print(f"Original:   {self.original_image_widget.bytes_size} bytes")
+                print(
+                    f"Original:   {self.original_image_widget.bytes_size} bytes")
                 print(
                     f"Compressed: {self.compressed_image_widget.bytes_size} bytes")
+
+                # To hold compression information
+                vbox = QVBoxLayout()
+                qr = self.original_image_widget.bytes_size / self.compressed_image_widget.bytes_size
+                compression_ratio = QLabel(f"Compression ratio: {qr}")
+                size_original = QLabel(
+                    f"Original:   {self.original_image_widget.bytes_size} bytes")
+                size_compressed = QLabel(
+                    f"Compressed: {self.compressed_image_widget.bytes_size} bytes")
+                vbox.addWidget(compression_ratio)
+                vbox.addWidget(size_original)
+                vbox.addWidget(size_compressed)
+
+                info_widget = QWidget()
+                info_widget.setLayout(vbox)
+
                 hbox.addWidget(self.original_image_widget)
                 hbox.addWidget(self.compressed_image_widget)
+                hbox.addWidget(info_widget)
             else:
                 raise NotImplementedError("Filetype not supported")
 
