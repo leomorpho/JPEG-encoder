@@ -14,6 +14,7 @@ log.setLevel(logging.DEBUG)
 img_format = "img"
 bmp_format = "bmp"
 
+
 class MainWindowQ1(QMainWindow):
     def __init__(self):
         QMainWindow.__init__(self)
@@ -110,30 +111,6 @@ class MainWindowQ2(QMainWindow):
         exit_action.triggered.connect(self.close)
         self.file_menu.addAction(exit_action)
 
-        # # Change JPEG levels
-        # # 90%
-        # ninety = QAction("90%", self)
-        # ninety.setStatusTip("90% compression")
-        # ninety.triggered.connect(self.compress_90)
-
-        # # 50%
-        # fifty=QAction("50%", self)
-        # fifty.setStatusTip("50% compression")
-        # fifty.triggered.connect(self.compress_50)
-
-        # # 10%
-        # ten=QAction("10%", self)
-        # ten.setStatusTip("10% compression")
-        # ten.triggered.connect(self.compress_10)
-
-        # # Toolbar
-        # self.toolbar=self.addToolBar('90%')
-        # self.toolbar.addAction(ninety)
-        # self.toolbar=self.addToolBar('50%')
-        # self.toolbar.addAction(fifty)
-        # self.toolbar=self.addToolBar('10%')
-        # self.toolbar.addAction(ten)
-
         # Window dimensions
         geometry = qApp.desktop().availableGeometry(self)
 
@@ -156,21 +133,21 @@ class MainWindowQ2(QMainWindow):
 
             file_extension = self.image_file_path.split(".")[-1]
 
-            if file_extension.lower()  == img_format:
+            if file_extension.lower() == img_format:
                 image_widget = Image(self.image_file_path)
                 hbox.addWidget(image_widget)
-            elif file_extension.lower()  == bmp_format:
-                original_image_widget = Image(self.image_file_path)
-                compressed_image_widget = Image(
+            elif file_extension.lower() == bmp_format:
+                self.add_toolbar()
+                self.original_image_widget = Image(self.image_file_path)
+                self.compressed_image_widget = Image(
                     self.image_file_path, compression=50)
-                print(original_image_widget.bytes_size)
-                print(compressed_image_widget.bytes_size)
-                hbox.addWidget(original_image_widget)
-                hbox.addWidget(compressed_image_widget)
+                print(f"Original:   {self.original_image_widget.bytes_size} bytes")
+                print(
+                    f"Compressed: {self.compressed_image_widget.bytes_size} bytes")
+                hbox.addWidget(self.original_image_widget)
+                hbox.addWidget(self.compressed_image_widget)
             else:
                 raise NotImplementedError("Filetype not supported")
-
-
 
             central_widget = QWidget()
             central_widget.setLayout(hbox)
@@ -199,3 +176,30 @@ class MainWindowQ2(QMainWindow):
         Change compression level and update UI
         """
         self.compressed_image_widget.update_image(level)
+        print(f"Original:   {self.original_image_widget.bytes_size} bytes")
+        print(
+            f"Compressed: {self.compressed_image_widget.bytes_size} bytes")
+
+    def add_toolbar(self):
+        # Change JPEG levels
+        # 90%
+        ninety = QAction("90%", self)
+        ninety.setStatusTip("90% compression")
+        ninety.triggered.connect(self.compress_90)
+
+        # 50%
+        fifty = QAction("50%", self)
+        fifty.setStatusTip("50% compression")
+        fifty.triggered.connect(self.compress_50)
+
+        # 10%
+        ten = QAction("10%", self)
+        ten.setStatusTip("10% compression")
+        ten.triggered.connect(self.compress_10)
+
+        self.toolbar = self.addToolBar('90%')
+        self.toolbar.addAction(ninety)
+        self.toolbar = self.addToolBar('50%')
+        self.toolbar.addAction(fifty)
+        self.toolbar = self.addToolBar('10%')
+        self.toolbar.addAction(ten)

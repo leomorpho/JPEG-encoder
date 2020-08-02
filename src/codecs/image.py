@@ -275,6 +275,7 @@ class IMGFile(CmnMixin):
         self._width: int = None
         self._height: int = None
         self._block_size: int = None
+        self._compression: int = None
 
         self.huffman = HuffmanEncoder()
 
@@ -298,6 +299,15 @@ class IMGFile(CmnMixin):
     @height.setter
     def height(self, value):
         self._height = value
+
+    @property
+    def compression(self):
+        """Get compression of image"""
+        return self._compression
+
+    @compression.setter
+    def compression(self, value):
+        self._compression = value
 
     def encode(self, layers: List[List[int]]):
         """
@@ -333,6 +343,7 @@ class IMGFile(CmnMixin):
         """
         Write the encoded data to file alongside the huffman tree.
         """
+        print(f"Writing to file {filename}")
         self._encoded_main_data, main_data_padding = self.pad_byte(
             self._encoded_main_data)
         encoded_main_data_bytes = self.str_to_byte_array(
@@ -349,15 +360,13 @@ class IMGFile(CmnMixin):
         with suppress(FileNotFoundError):
             os.remove(filename)
 
-        print("To file " + str(self._width))
-        print("To file " + str(self._height))
-
         # TODO: Need to write compression level to disk
         with open(filename, "wb") as f:
             f.write(struct.pack(f'{UINT}', self._width))
             f.write(struct.pack(f'{UINT}', self._height))
             f.write(struct.pack(f'{UINT}', self._block_size))
             f.write(struct.pack(f'{UINT}', self._width_in_cols))
+            f.write(struct.pack(f'{UINT}', self._compression))
             f.write(struct.pack(f'{UINT}', main_data_padding))
             f.write(struct.pack(f'{UINT}', tree_size))
             f.write(struct.pack(f'{UINT}', tree_padding))
@@ -382,12 +391,15 @@ class IMGFile(CmnMixin):
         """
         Read the entire IMG file
         """
+        print(f"Reading from file {filename}")
         with open(filename, "rb") as f:
             self._width: int = self.unpack(f.read(BYTE4), unpack_type=UINT)
             self._height: int = self.unpack(f.read(BYTE4), unpack_type=UINT)
             self._block_size: int = self.unpack(
                 f.read(BYTE4), unpack_type=UINT)
             self._width_in_cols: int = self.unpack(
+                f.read(BYTE4), unpack_type=UINT)
+            self._compression: int = self.unpack(
                 f.read(BYTE4), unpack_type=UINT)
             main_data_padding: int = self.unpack(
                 f.read(BYTE4), unpack_type=UINT)
@@ -399,8 +411,6 @@ class IMGFile(CmnMixin):
             tree_bytes = f.read(tree_size)
 
             data = f.read()
-            print("From file " + str(self._width))
-            print("From file " + str(self._height))
 
         # Convert each byte to a string binary number
         tree_binary_list = []

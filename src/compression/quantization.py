@@ -37,16 +37,16 @@ Q90 = [[3, 2, 2, 3, 5, 8, 10, 12],
 
 
 
-def quantize(block: List[List[int]], compression_lvl=50, chroma=False):
+def quantize(block: List[List[int]], compression_level=50, chroma=False):
     """
     Quantize a block.
 
     :param block: an 8x8 block of integer values
     :param quantization_matrix: the quantization matrix to use
-    :param chroma: whether to use chroma quantization table or not
+    :param chroma: whether to use chroma quantization table or not. TODO.
     """
 
-    quantization_matrix = get_quantization_matrix(compression_lvl)
+    quantization_matrix = get_quantization_matrix(compression_level)
 
     # Divide every value in the block by the corresponding value
     # in the quantization matrix (aka, same x, y indices)
@@ -57,7 +57,7 @@ def quantize(block: List[List[int]], compression_lvl=50, chroma=False):
 
     return block
 
-def dequantize(block: List[List[int]], compression_lvl=50, chroma=False):
+def dequantize(block: List[List[int]], compression_level=50, chroma=False):
     """
     Dequantize a block.
 
@@ -66,7 +66,8 @@ def dequantize(block: List[List[int]], compression_lvl=50, chroma=False):
     :param chroma: whether to use chroma quantization table or not
     """
 
-    quantization_matrix = get_quantization_matrix(compression_lvl)
+    quantization_matrix = get_quantization_matrix(compression_level)
+    quantization_matrix = Q90
 
     log.info("Dequantize block")
     # Multiply every value in the block by the corresponding value

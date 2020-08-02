@@ -42,6 +42,11 @@ The following steps were implemented:
 
 The opposite was implemented for decoding. Encoding and decoding were implemented at the same time. This made development easier as my `pytests` were just the opposite of one another. It was surprisingly challenging and fun to perform each step. The DCT was the hardest part and I still do not completely understand the mathematics. I do understand the principles at work, which I reckon is the most important.
 
+#### How to use
+
+* When openinga `bmp` file, the original as well as a 90% compressed image will be displayed. The compressed copy of the original will be saved in the same directory as the original with the `img` extension.
+* When opening a `img` file, the compressed image will be read from file and displayed.
+
 ### Gaussian Mixture Model
 
 Apply GMM on image before lossy compression.
@@ -151,11 +156,37 @@ This was quite a challenging part. I think not having refactored my API made it 
 
 Eventually, I figured it out:
 
-<img src="REPORT.assets/Screen%20Shot%202020-08-01%20at%206.04.46%20PM.png" alt="Example" width="500">
+<img src="REPORT.assets/Screen%20Shot%202020-08-01%20at%206.04.46%20PM.png" alt="Example" width="600">
 
 #### Final result
 
 The colors were affected quite a bit by the compression. The yellows have turned to greenish yellows. I wonder why.
+
+There are 3 compression levels: 10%, 50% and 90%. The 10% compression curiously affects the colors more than the 50% and 90% compression, making the colors more bland.:
+
+| 10%                                                          | 50%                                                          | 90%                                                          |
+| ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| ![Screen Shot 2020-08-02 at 9.02.09 AM](REPORT.assets/Screen%20Shot%202020-08-02%20at%209.02.09%20AM.png) | ![Screen Shot 2020-08-02 at 9.02.34 AM](REPORT.assets/Screen%20Shot%202020-08-02%20at%209.02.34%20AM.png) | ![Screen Shot 2020-08-02 at 9.02.58 AM](REPORT.assets/Screen%20Shot%202020-08-02%20at%209.02.58%20AM.png) |
+
+The above issue was due to the fact that the dequantization was using the 90% matrix all the time. By using the same dequantization matrix as the quantization one, the below results were obtained. The differences are more difficult to see but are there. This is too bad as I thought the 50% quality from above was much better. I wonder if I have a bug somewhere. The good thing is that the 10-90 range below is a lot more consistent compared to above, telling me that it is actually probably more correct.
+
+| 10%                                                          | 50%                                                          | 90%                                                          |
+| ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| ![Screen Shot 2020-08-02 at 9.39.54 AM](REPORT.assets/Screen%20Shot%202020-08-02%20at%209.39.54%20AM.png) | ![Screen Shot 2020-08-02 at 9.39.26 AM](REPORT.assets/Screen%20Shot%202020-08-02%20at%209.39.26%20AM.png) | ![Screen Shot 2020-08-02 at 9.38.51 AM](REPORT.assets/Screen%20Shot%202020-08-02%20at%209.38.51%20AM.png) |
+
+<img src="REPORT.assets/Screen%20Shot%202020-08-02%20at%209.38.51%20AM-6386433.png" alt="Example" width="600">
+
+
+
+#### Possible bugs
+
+The below image is a JPEG compressed with Preview on MacOS, using the lowest setting. This is indicative of a likely bug. The colors match the original image, and the resolution is much higher than with my compressor.
+
+* I think the bug is not in the quantization. I am doing that part correctly. It is therefore upstream. I think it may be the DCT because the pixel values are all being shifted.
+
+![Screen Shot 2020-08-02 at 10.34.29 AM](REPORT.assets/Screen%20Shot%202020-08-02%20at%2010.34.29%20AM.png)
+
+
 
 ## References
 

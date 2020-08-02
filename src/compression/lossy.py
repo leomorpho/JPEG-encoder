@@ -22,12 +22,13 @@ def downsample(image: List[List[List[int]]]):
 
 
 def JPEG(original_image: List[List[List[int]]],
-        compression_lvl: int,
+        compression_level: int,
         path: str,
         width: int,
         height: int) -> List[List[List[int]]]:
     """Encode in JPEG-like format and return the decoded image
     """
+    print(f"Encoding image to JPEG with {compression_level}% compression")
     he = HuffmanEncoder()
 
     # Separate into Y, Cb, Cr layers
@@ -47,7 +48,7 @@ def JPEG(original_image: List[List[List[int]]],
             for block in row:
                 # Encode
                 block = dct_forward(block)
-                block = quantize(block, compression_lvl)
+                block = quantize(block, compression_level=compression_level)
                 vector = zigzag(block)
                 blocked_row_vector.append(vector.copy())
 
@@ -55,29 +56,26 @@ def JPEG(original_image: List[List[List[int]]],
         layers_zigzagged.append(blocked_layer_zigzagged)
 
     im = image.IMGFile()
-    print(f"Size at JPEG is {width} by {height}")
     im.height = height
     im.width = width
+    im.compression = compression_level
     im.encode(layers_zigzagged)
     filepath = path.split(".")[0] + ".img"
     im.write(filepath)
     im.read(filepath)
     decoded_layers_zigzagged = im.decode()
 
-
-    # TODO: It't not the image written to file that is displayed rn,
-    # it's the processed one still in memory
-
     assert(layers_zigzagged == decoded_layers_zigzagged)
 
-    return read_JPEG(decoded_layers_zigzagged), im.bytes_size
+    return read_JPEG(decoded_layers_zigzagged, compression_level), im.bytes_size
 
 
-def read_JPEG(layers):
+def read_JPEG(layers, compression_lvl: int =None):
     """
     Layers start zigzagged
     """
     decompressed_layers = []
+    print(f"Decoding JPEG with {compression_lvl}% compression")
 
     # Make new copy for JPEG version
     for i_layer, layer in enumerate(layers):
@@ -87,7 +85,7 @@ def read_JPEG(layers):
             for i_vector, vector in enumerate(row):
                 # Decode
                 block = un_zigzag(vector)
-                block = dequantize(block, compression_lvl=90)
+                block = dequantize(block, compression_level=compression_lvl)
                 block = dct_inverse(block)
                 # Update block in row
                 decompressed_row.append(block)

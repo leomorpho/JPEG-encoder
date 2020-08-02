@@ -23,14 +23,12 @@ class Image(QWidget):
             img = IMGFile()
             img.read(path)
             decoded = img.decode()
-            self.matrix = read_JPEG(img.decode())
+            self.matrix = read_JPEG(img.decode(), img.compression)
             with open("second.json", "w") as f:
                 f.write(json.dumps(self.matrix))
             self.width = img.width
             self.height = img.height
             self.bytes_size = img.bytes_size
-            print(self.width)
-            print(self.height)
         elif file_extension.lower() == bmp_format:
             self.bmp_image = BmpFile(path)
             self.matrix = self.bmp_image.matrix
@@ -39,11 +37,8 @@ class Image(QWidget):
             self.bytes_size = self.bmp_image.bytes_size
 
             if compression:
-                print("compressed:")
                 self.matrix, self.bytes_size = JPEG(
                     self.matrix, compression, path, self.width, self.height)
-                print(self.width)
-                print(self.height)
         else:
             raise NotImplementedError("Filetype not supported")
 
@@ -75,5 +70,7 @@ class Image(QWidget):
         painter.drawPixmap(self.rect(), pixmap)
 
     def update_image(self, compression_lvl):
-        self.matrix = JPEG(self.bmp_image.matrix, compression_lvl)
+        self.matrix, self.bytes_size = JPEG(
+            self.bmp_image.matrix, compression_lvl,
+            self.path, self.width, self.height)
         self.update()
