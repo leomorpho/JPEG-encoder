@@ -1,13 +1,14 @@
 from typing import List
 import logging
 import sys
+import math
+import time
 from src.compression.dct import dct_forward, dct_inverse
 from src.compression.quantization import quantize, dequantize
 from src.compression.zigzag import zigzag, un_zigzag
 from src.codecs import image
+from src.compression import colors
 from src.compression.lossless import HuffmanEncoder
-# TODO remove json
-import json
 
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
@@ -15,6 +16,7 @@ log.setLevel(logging.DEBUG)
 # TODO: implement GMM
 
 JPEG_SUPPORTED_ENCODING_FORMATS = {"bmp"}
+PIXEL_MAX = 255
 
 
 def downsample(image: List[List[List[int]]]):
@@ -28,8 +30,14 @@ def JPEG(original_image: List[List[List[int]]],
         height: int) -> List[List[List[int]]]:
     """Encode in JPEG-like format and return the decoded image
     """
+    start = time.time()
     print(f"Encoding image to JPEG with {compression_level}% compression")
     he = HuffmanEncoder()
+
+    # Convert to YCbCr
+    print("Logging these pixels for debugging.")
+    original_image = colors.image_RGB_to_YCbCr(original_image)
+    print(original_image[100][100])
 
     # Separate into Y, Cb, Cr layers
     layers: List[List[List[int]]] = separate_image_layers(original_image)
@@ -62,12 +70,20 @@ def JPEG(original_image: List[List[List[int]]],
     im.encode(layers_zigzagged)
     filepath = path.split(".")[0] + ".img"
     im.write(filepath)
+
+    end = time.time()
+    compression_time = end - start
+    start = time.time()
+
     im.read(filepath)
     decoded_layers_zigzagged = im.decode()
 
     assert(layers_zigzagged == decoded_layers_zigzagged)
 
-    return read_JPEG(decoded_layers_zigzagged, compression_level), im.bytes_size
+    end = time.time()
+    decompression_time = end - start
+
+    return read_JPEG(decoded_layers_zigzagged, compression_level), im.bytes_size, compression_time, decompression_time
 
 
 def read_JPEG(layers, compression_lvl: int =None):
@@ -85,7 +101,7 @@ def read_JPEG(layers, compression_lvl: int =None):
             for i_vector, vector in enumerate(row):
                 # Decode
                 block = un_zigzag(vector)
-                block = dequantize(block, compression_level=compression_lvl)
+                block = dequantize(block, compression_lvl)
                 block = dct_inverse(block)
                 # Update block in row
                 decompressed_row.append(block)
@@ -99,8 +115,11 @@ def read_JPEG(layers, compression_lvl: int =None):
     assert(decompressed_layers[2])
 
     final_image = join_image_layers(decompressed_layers)
-    with open('read.json', "w") as f:
-        f.write(json.dumps(final_image))
+    print(final_image[100][100])
+
+    # Convert to RGB
+    final_image = colors.image_YCbCr_to_RGB(final_image)
+    print(final_image[100][100])
 
     return final_image
 
@@ -278,3 +297,22 @@ def block_join_layer(blocked_layer: List[List[int]]):
             layer.append(row)
 
     return layer
+
+
+def PSNR(original: List[List[List[int]]], compressed: List[List[List[int]]]):
+    height = len(original)
+    width = len(original[0])
+
+    sum_of_squares = 0.0
+
+    for i in range(height):
+        for j in range(width):
+            R = (original[i][j][0] - compressed[i][i][0]) ** 2
+            G = (original[i][j][1] - compressed[i][i][1]) ** 2
+            B = (original[i][j][2] - compressed[i][i][2]) ** 2
+
+            sum_of_squares += ((R + G + B) / 3)
+
+    mse = (1 / (height * width)) * sum_of_squares
+
+    return 20 * math.log10(PIXEL_MAX) - 10 * math.log10(mse)

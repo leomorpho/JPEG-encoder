@@ -1,13 +1,12 @@
 import math
 from typing import List
 import logging
+import scipy
 
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
 
 ZERO_CENTERING_VAL = 128
-MAX_VAL = 255
-MIN_VAL = 0
 
 
 def dct_forward(block: List[List[int]]) -> List[List[int]]:
@@ -19,7 +18,7 @@ def dct_forward(block: List[List[int]]) -> List[List[int]]:
     # Center data on zero before DCT and perform DCT on every row
     for index, row in enumerate(block):
         row = [val - ZERO_CENTERING_VAL for val in row]
-        block[index] = transform(row)
+        block[index] = scipy.fft.dct(row)
 
     # Perform DCT over every column
     for i in range(len(block)):
@@ -28,7 +27,7 @@ def dct_forward(block: List[List[int]]) -> List[List[int]]:
         for j in range(len(block)):      # TODO: is access by index faster than iteration?
             col_vector.append(block[j][i])
 
-        col_vector = transform(col_vector)
+        col_vector = scipy.fft.dct(col_vector)
 
         # Set results to block
         for j in range(len(block)):      # TODO: is access by index faster than iteration?
@@ -50,7 +49,7 @@ def dct_inverse(block: List[List[int]]) -> List[List[int]]:
         for j in range(len(block)):      # TODO: is access by index faster than iteration?
             col_vector.append(block[j][i])
 
-        col_vector = inverse_transform(col_vector)
+        col_vector = scipy.fft.idct(col_vector)
 
         # Set results to block
         for j in range(len(block)):      # TODO: is access by index faster than iteration?
@@ -58,22 +57,16 @@ def dct_inverse(block: List[List[int]]) -> List[List[int]]:
 
     # Perform DCT over every row
     for index, row in enumerate(block):
-        block[index] = [int(x) for x in inverse_transform(row)]
+        block[index] = [int(x) for x in scipy.fft.idct(row)]
 
     # Reverse the centering on zero that was run before forward DCT.
     # For every row and every member of the row.
     for i, row in enumerate(block):
         for j, val in enumerate(row):
             block[i][j] = val + ZERO_CENTERING_VAL
-            if block[i][j] > MAX_VAL:
-                block[i][j] = MAX_VAL
-            elif block[i][j] < MIN_VAL:
-                block[i][j] = MIN_VAL
 
     return block
 
-
-# TODO: rewrite DCT in my own code.
 
 # DCT type II, unscaled.
 # See: https://en.wikipedia.org/wiki/Discrete_cosine_transform#DCT-II

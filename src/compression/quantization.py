@@ -5,7 +5,7 @@ log = logging.getLogger()
 log.setLevel(logging.DEBUG)
 
 # Find tables at p.284 of Professor's book
-# TODO: special quantization for chroma not implemented yet. Remove if not going to.
+# TODO: special quantization for chroma not implemented yet.
 chrominance = [[]]
 
 Q10 = [[80, 60, 50, 80, 120, 200, 255, 255],
@@ -37,7 +37,7 @@ Q90 = [[3, 2, 2, 3, 5, 8, 10, 12],
 
 
 
-def quantize(block: List[List[int]], compression_level=50, chroma=False):
+def quantize(block: List[List[int]], compression_level, chroma=False):
     """
     Quantize a block.
 
@@ -57,7 +57,7 @@ def quantize(block: List[List[int]], compression_level=50, chroma=False):
 
     return block
 
-def dequantize(block: List[List[int]], compression_level=50, chroma=False):
+def dequantize(block: List[List[int]], compression_level: int, chroma=False):
     """
     Dequantize a block.
 
@@ -65,19 +65,14 @@ def dequantize(block: List[List[int]], compression_level=50, chroma=False):
     :param quantization_matrix: the quantization matrix to use
     :param chroma: whether to use chroma quantization table or not
     """
-
     quantization_matrix = get_quantization_matrix(compression_level)
-    quantization_matrix = Q90
 
     log.info("Dequantize block")
     # Multiply every value in the block by the corresponding value
     # in the quantization matrix (aka, same x, y indices)
     for x in range(8):
         for y in range(8):
-            val = int(block[y][x] * quantization_matrix[y][x])
-            if val > 255:
-                val = 255
-            block[y][x] = val
+            block[y][x] = int(block[y][x] * quantization_matrix[y][x])
 
     return block
 

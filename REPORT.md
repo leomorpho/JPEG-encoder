@@ -6,7 +6,11 @@
 
 Q1 is divided into different sub-parts: WAV-related, UI-related and compressor-related.
 
-## Compression ratio
+### Bug correction
+
+I corrected a significant bug that I did not even realize I had. Thanks to the marking feedback, I became aware of it. The sound wave now corresponds to the one shown by actual sound libraries.
+
+### Compression ratio
 
 While the compression ratios of LZW are better, it does not show the impact of having to pack the dictionary into the file.
 
@@ -14,22 +18,32 @@ _Create a map of my implementation (classes, modules). Describe the interface of
 
 For the compression ratio, the input is translated to a list of short integers. The reason is that the audio files we are reading for this assignment would store [0-255] in a short integer. I therefore calculate the space it would take in regards to that (and not a 4 byte integer or float). To get the length in bytes of the encoded data, I divide the length of it by 8 for 8 bits/byte since the codes would be packed together.
 
-The compression ratio only takes into account the payload of the sound file. The size of the Huffman tree itself is not taken into account as a real file would need to have it stored for later decoding.
+The compression ratio only takes into account the payload of the sound file. The size of the Huffman tree itself is not taken into account even though a real file would need to have it stored for later decoding. Likewise, no table is saved to disk for the LZW compressed file.
 
-| Filename  | Huffman | LZW  |
-| --------- | ------- | ---- |
-| Car horn  | 1.21    | 4.03 |
-| Explosion | 1.18    | 3.72 |
-| Fire      | 1.20    | 4.04 |
-| Leopard   | 1.32    | 4.20 |
+| Filename  | Huffman  | LZW      | FLAC     |
+| --------- | -------- | -------- | -------- |
+| Car horn  | 1.21 : 1 | 4.03 : 1 | 1.81 : 1 |
+| Explosion | 1.18 : 1 | 3.72 : 1 | 1.57 : 1 |
+| Fire      | 1.20 : 1 | 4.04 : 1 | 1.63 : 1 |
+| Leopard   | 1.32 : 1 | 4.20 : 1 | 2.04 : 1 |
 
 From my research online, Huffman generally compresses at 1.5:1 and LZW at 5:1. My ratios are slightly below these. The sounds used for testing may have more entropy than the average, or else my code may have a bug. I tested my code extensively with an 81% code coverage in `pytests` tests.
 
+Compared to the FLAC compression standard, my Huffman implementation had poorer performance but my LZW implementation had higher performance. From what I found on the internet, the FLAC compression ratio generally compresses at a 2:1 ratio. The FLAC compression ratios seen above are a little under that. However, that is consistent with the Huffman and LZW compression ratios being lower than the average (as found on the internet). Therefore, my code must be correct.
+
+The Huffman encoder from Q1 was expanded in Q2 to be a full Huffman implementation:
+
+* Creates Huffman tree
+* Can encode a string to Huffman codes
+* Can serialize the tree to bytes, and deserialize the tree from bytes (no libraries were used).
+
 ## Q2
 
-The following implementation is an attempt at a simplified version of JPEG. It is simplified in that it supports only the BMP file specified within the assignment. It currently does not work perfectly, with the quality of the compressed image being much lower than expected. I was unable to debug this part, as the whole project was massive and took me about 60h and 4800 lines of code.
+The following implementation is an attempt at a simplified version of JPEG. It is simplified in that it supports only the BMP file specified within the assignment. It currently does not work perfectly, with the quality of the compressed image being much lower than expected. I was unable to debug this part, as the whole project was massive and took me about 80h and 5000 lines of code.
 
 The color layers was not downsampled.
+
+<img src="REPORT.assets/Screen%20Shot%202020-08-03%20at%205.17.04%20PM.png" alt="Example" width="600" >
 
 The following steps were implemented:
 
@@ -39,17 +53,15 @@ The following steps were implemented:
     * DCT
     * Quantize
     * Zigzag entropy coding
+    * Convert to bytes
+* Serialize and deserialize Huffman tree
 
-The opposite was implemented for decoding. Encoding and decoding were implemented at the same time. This made development easier as my `pytests` were just the opposite of one another. It was surprisingly challenging and fun to perform each step. The DCT was the hardest part and I still do not completely understand the mathematics. I do understand the principles at work, which I reckon is the most important.
+The opposite was implemented for decoding. Encoding and decoding were implemented at the same time. This made development easier as my `pytests` were just the opposite of one another. It was surprisingly challenging and fun to perform each step. 
 
 #### How to use
 
-* When openinga `bmp` file, the original as well as a 90% compressed image will be displayed. The compressed copy of the original will be saved in the same directory as the original with the `img` extension.
+* When opening a `bmp` file, the original as well as a 90% quality image will be displayed. The compressed copy of the original will be saved in the same directory as the original with the `img` extension.
 * When opening a `img` file, the compressed image will be read from file and displayed.
-
-### Gaussian Mixture Model
-
-Apply GMM on image before lossy compression.
 
 ### Colour transform
 
@@ -57,13 +69,48 @@ The conversion from RGB to YCbCr used values from [this wikipedia reference page
 
 ### 2D Discrete Cosine Transform
 
+The DCT of columns and rows were taken separately and then combined.
+
 ### Quantization
 
-The two chroma layers are quantized more aggressively than the luma layer. The 50% tables were taken from the textbook. The 10% and 90% tables were taken from Wikipedia.
+All the layers are quantized with the same quantization matrix. The more aggressive quantization for the chroma layer was not implemented here. The 50% tables were taken from the textbook. The 10% and 90% tables were taken from Wikipedia.
 
 ### Huffman encoding
 
-The Huffman tree is not part of the written file. Therefore, the file is not currently portable. To make it portable, the huffman tree will need to be persisted with the file.s
+| Method                   | Description                                                  |
+| ------------------------ | ------------------------------------------------------------ |
+| Encode(string)           | Encode data that has been converted to a string.             |
+| Decode(string)           |                                                              |
+| Serialize_tree           | A recursive function to serialize a Huffman tree. Every node is indicated by a `1`, a leaf is indicated by a `0`. A leaf is always followed by 2 bytes encoding the leaf value as a binary string literal (eg.: `00010100 001011001`) |
+| Deserialize_tree         | Contains a recursive helper function to translate a binary string literal (`010011..`) into the correct Huffman tree |
+| Create_tree              | Creates a Huffman tree from a list of nodes                  |
+| Assign_codes             | Assigns codes recursively to the Huffman tree                |
+| Create_prob_distribution | To create the Huffman tree, the probability distribution of the samples must be known. This function realizes this. It uses a hash table (dictionnary) to keep count of each sample. |
+| Convert_samples_to_code  | Once the Huffman tree is built, this function can convert the samples to the compressed Huffman codes |
+
+### Main JPEG methods
+
+The `src/compression/lossy.py` holds the JPEG pipelines
+
+| Method                                       | Description                                                  |
+| -------------------------------------------- | ------------------------------------------------------------ |
+| JPEG                                         | Converts a matrix representing an image into the JPEG format and writes the new file. It then reads from that file and returns the JPEG image (a matrix of pixels). |
+| Read_JPEG                                    | Performs JPEG in reverse to read from file. The `JPEG` function (above) uses this function to read from file. |
+| Separate_image_layers  and join_image_layers | The layers must be separated to be compressed. They then must be stitched back together to be displayed as a single image. |
+| Block_split_layer and block_join_layer       | The JPEG pipeline is operated on a block basis. Blocks are 8x8 pixels from the original image. These were quite tricky to implement.s |
+|                                              |                                                              |
+|                                              |                                                              |
+|                                              |                                                              |
+
+### Zigzag encoding
+
+The 8x8 blocks are zigzag encoded to place all the high coefficients together. In this manner, the zeroes are mostly all together and the whole vector can be compressed more efficiently.
+
+| Method               | Description                                                  |
+| -------------------- | ------------------------------------------------------------ |
+| Zigzag and un zigzag | These are pretty self-explanatory. These were tricky to implement. Writing tests helped immensely. I am glad that I learned to write good test from my job! Test-driven development is a good habit. |
+
+
 
 ### Experimentation
 
@@ -136,11 +183,24 @@ Indeed, when reading the serialized tree from file and attempting to deserialize
 | Width             | width of the image in blocks                | 4 byte           |
 | Height            | Height of the image in blocks               | 4 byte           |
 | Block size        | Size of the blocks (default is 8x8)         | 4 byte           |
+| Width in columns  | Width of the matrix in pixel columns        | 4 byte           |
+| Compression       | Compression used                            | 4 byte           |
 | Main data padding | How much padding in bytes the main data has | Variable (bytes) |
 | Tree size         | Size of the Huffman tree in bytes           | Variable (bytes) |
 | Tree padding      | How much padding in bytes the tree data has | Variable (bytes) |
 
 There are instances in which I thought my API was confusing. If I had time, I would have refactored it.
+
+| Method                                | Description                                                  |
+| ------------------------------------- | ------------------------------------------------------------ |
+| Encode                                | Encode a matrix representing an image into a vector.         |
+| Decode                                | Decode a vector of values into an image. Huffman decoding happens here. |
+| Write                                 | Write the encoded image                                      |
+| Read                                  | Read the encoded image. Deserialize the Huffman tree         |
+| Vector_to_layers and layers_to_vector | Convert between layers of an image and a single vector. The image is saved as a byte string, which is built from the vector. |
+| Subdivide_layer and subdivide_row     | Separate a vector to layers, and separate a vector into rows. These is a helper function of the above functions. |
+| Str_to_byte_array                     | The last step before writing to file: the vector representing the image is encoded into a byte array. |
+| Pad_byte                              | Pad a binary string literal (`001`) so that it is a full byte (`00000001`) |
 
 
 
@@ -152,7 +212,7 @@ The current implementation does not have run-length coding.
 
 This was quite a challenging part. I think not having refactored my API made it more difficult. After much struggle, I succesfully got the image (or rather part of it) to show:
 
-<img src="REPORT.assets/Screen%20Shot%202020-08-01%20at%204.14.35%20PM.png" alt="Example" width="300" height="100">
+<img src="REPORT.assets/Screen%20Shot%202020-08-01%20at%204.14.35%20PM.png" alt="Example" width="300">
 
 Eventually, I figured it out:
 
@@ -176,17 +236,37 @@ The above issue was due to the fact that the dequantization was using the 90% ma
 
 <img src="REPORT.assets/Screen%20Shot%202020-08-02%20at%209.38.51%20AM-6386433.png" alt="Example" width="600">
 
+I did also get the below image in my program. While it looks more correct, the logic behind did not make sense to me.
+
+<img src="REPORT.assets/Screen%20Shot%202020-08-02%20at%209.02.34%20AM.png" alt="Example" width="600">
 
 
-#### Possible bugs
+
+#### Bugs
 
 The below image is a JPEG compressed with Preview on MacOS, using the lowest setting. This is indicative of a likely bug. The colors match the original image, and the resolution is much higher than with my compressor.
 
 * I think the bug is not in the quantization. I am doing that part correctly. It is therefore upstream. I think it may be the DCT because the pixel values are all being shifted.
 
-![Screen Shot 2020-08-02 at 10.34.29 AM](REPORT.assets/Screen%20Shot%202020-08-02%20at%2010.34.29%20AM.png)
+<img src="REPORT.assets/Screen%20Shot%202020-08-02%20at%2010.34.29%20AM.png" alt="Example" width="600">
 
+I was hunting for my bug for a couple of hours and I finally found where the bug (just an hour before the assignment was due). My DCT implementation is buggy. I have replaced it with the scipy DCT implementation for now. Since I am submitting this assignment (improved) as my final project, I will reimplement it then. I also left a log where I print a pixel before DCT, and after inverse DCT. They use to be vastly different, which led me to investigate my DCT implementation. They are now very close using scipy's DCT. The below image is after the DCT component was replaced with scipy's.
 
+<img src="REPORT.assets/Screen%20Shot%202020-08-03%20at%204.05.15%20PM-6495984.png" alt="Example" width="600">
+
+In conclusion, the 90% quality from my implementation of JPEG looks really good. My format is compared below to an actual JPEG produced by imagemagick at 50% quality.
+
+| Image    | Compression Time | Decompression Time | Compression Ratio | PSNR with my JPEG | PSNR    |
+| -------- | ---------------- | ------------------ | ----------------- | ----------------- | ------- |
+| Fall     | 17.1s            | 2.34s              | 2.9               | 11.27dB           | 28.86dB |
+| Earth    | 9.0s             | 1.64s              | 4.07              | 11.64dB           | 33.53dB |
+| Nature_2 | 14.72s           | 3.02s              | 2.45              | 9.24dB            | 30.03dB |
+| Nature   | 8.03s            | 1.0s               | 3.26              | 15.1dB            | 31.30dB |
+| Bios     | 13.0s            | 2.25s              | 4.26              | 9.45dB            | 30.85dB |
+
+I wonder why the PSNR values from my image and the JPEG are so different. It appears that my JPEG is of lower quality. Perhaps it is using different quantization tables than mine. 
+
+The most intensive part of my algorithm is the compression as it takes the longest time.
 
 ## References
 

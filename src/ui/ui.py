@@ -137,7 +137,8 @@ class MainWindowQ2(QMainWindow):
                 image_widget = Image(self.image_file_path)
                 hbox.addWidget(image_widget)
             elif file_extension.lower() == bmp_format:
-                self.add_toolbar()
+                # TODO: toolbar is not working correctly
+                # self.add_toolbar()
                 self.original_image_widget = Image(self.image_file_path)
                 self.compressed_image_widget = Image(
                     self.image_file_path, compression=50)
@@ -145,18 +146,38 @@ class MainWindowQ2(QMainWindow):
                     f"Original:   {self.original_image_widget.bytes_size} bytes")
                 print(
                     f"Compressed: {self.compressed_image_widget.bytes_size} bytes")
+                print(
+                    f"Compression time: {self.compressed_image_widget.compression_time}"
+                )
+                print(
+                    f"Decompression time: {self.compressed_image_widget.decompression_time}"
+                )
 
+                print(
+                    f"PSNR: {self.compressed_image_widget.psnr}"
+                )
                 # To hold compression information
                 vbox = QVBoxLayout()
-                qr = self.original_image_widget.bytes_size / self.compressed_image_widget.bytes_size
-                compression_ratio = QLabel(f"Compression ratio: {qr}")
+                qr = self.original_image_widget.bytes_size / \
+                    self.compressed_image_widget.bytes_size
+                compression_ratio = QLabel(f"Compression ratio: {round(qr, 2)}")
                 size_original = QLabel(
                     f"Original:   {self.original_image_widget.bytes_size} bytes")
                 size_compressed = QLabel(
                     f"Compressed: {self.compressed_image_widget.bytes_size} bytes")
+                compression_time = QLabel(
+                    f"Compression time: {round(self.compressed_image_widget.compression_time, 2)}s")
+                decompression_time = QLabel(
+                    f"Decompression time: {round(self.compressed_image_widget.decompression_time, 2)}s")
+                psnr = QLabel(
+                    f"PSNR: {round(self.compressed_image_widget.psnr, 2)}dB")
+
                 vbox.addWidget(compression_ratio)
                 vbox.addWidget(size_original)
                 vbox.addWidget(size_compressed)
+                vbox.addWidget(compression_time)
+                vbox.addWidget(decompression_time)
+                vbox.addWidget(psnr)
 
                 info_widget = QWidget()
                 info_widget.setLayout(vbox)
@@ -201,17 +222,17 @@ class MainWindowQ2(QMainWindow):
     def add_toolbar(self):
         # Change JPEG levels
         # 90%
-        ninety = QAction("90%", self)
+        ninety = QAction("Q90", self)
         ninety.setStatusTip("90% compression")
         ninety.triggered.connect(self.compress_90)
 
         # 50%
-        fifty = QAction("50%", self)
+        fifty = QAction("Q50", self)
         fifty.setStatusTip("50% compression")
         fifty.triggered.connect(self.compress_50)
 
         # 10%
-        ten = QAction("10%", self)
+        ten = QAction("Q10", self)
         ten.setStatusTip("10% compression")
         ten.triggered.connect(self.compress_10)
 

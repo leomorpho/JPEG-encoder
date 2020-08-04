@@ -78,6 +78,7 @@ class HuffmanEncoder:
 
         log.debug(unencoded_binary_bytes)
         log.debug(encoded_samples_bytes)
+        print(f"LZW encoded size: encoded_samples_bytes")
 
         return round(unencoded_binary_bytes / encoded_samples_bytes, 4)
 
@@ -417,6 +418,7 @@ class LZWEncoder:
 
         log.debug(unencoded_binary_bytes)
         log.debug(encoded_samples_bytes)
+        print(f"Huffman encoded size: encoded_samples_bytes")
 
         return round(unencoded_binary_bytes / encoded_samples_bytes, 4)
 

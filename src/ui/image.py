@@ -3,9 +3,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from src.codecs.image import BmpFile, IMGFile
-from src.compression.lossy import JPEG, read_JPEG
-# TODO: remove json from everywhere
-import json
+from src.compression.lossy import JPEG, read_JPEG, PSNR
 
 img_format = "img"
 bmp_format = "bmp"
@@ -24,8 +22,6 @@ class Image(QWidget):
             img.read(path)
             decoded = img.decode()
             self.matrix = read_JPEG(img.decode(), img.compression)
-            with open("second.json", "w") as f:
-                f.write(json.dumps(self.matrix))
             self.width = img.width
             self.height = img.height
             self.bytes_size = img.bytes_size
@@ -37,8 +33,9 @@ class Image(QWidget):
             self.bytes_size = self.bmp_image.bytes_size
 
             if compression:
-                self.matrix, self.bytes_size = JPEG(
+                self.matrix, self.bytes_size, self.compression_time, self.decompression_time  = JPEG(
                     self.matrix, compression, path, self.width, self.height)
+                self.psnr = PSNR(self.bmp_image.matrix, self.matrix)
         else:
             raise NotImplementedError("Filetype not supported")
 
@@ -70,7 +67,8 @@ class Image(QWidget):
         painter.drawPixmap(self.rect(), pixmap)
 
     def update_image(self, compression_lvl):
-        self.matrix, self.bytes_size = JPEG(
+        self.matrix, self.bytes_size, self.compression_time, self.compression_time = JPEG(
             self.bmp_image.matrix, compression_lvl,
             self.path, self.width, self.height)
+        self.psnr = PSNR(self.bmp_image.matrix, self.matrix)
         self.update()

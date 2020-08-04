@@ -6,8 +6,6 @@ import os
 from contextlib import suppress
 from src.compression.lossless import HuffmanEncoder
 from src.compression import lossy
-# TODO: remove json
-import json
 
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
